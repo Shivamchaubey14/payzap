@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 # ── Middleware ────────────────────────────────────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'merchants.middleware.APIKeyRateLimitMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -107,14 +108,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/min',
-    },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
@@ -200,3 +193,10 @@ LOGGING = {
         },
     },
 }
+
+# ── Frontend URL (for email links) ────────────────────────────────────────────
+DEFAULT_FROM_EMAIL = 'noreply@payzap.com'
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8000')
+
+# Redis URL (for rate limit middleware)
+REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
