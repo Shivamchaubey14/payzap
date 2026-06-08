@@ -67,21 +67,28 @@ class APIKeyAuthenticationTest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        # Register a merchant and grab their API key
-        response = self.client.post('/v1/accounts/register/', {
-            'business_name': 'API Auth Corp',
-            'email': 'apiauth@corp.com',
-            'phone': '9000000000',
-            'password': 'SecurePass123',
-            'confirm_password': 'SecurePass123',
-        }, format='json')
-        self.api_key = response.data['test_api_key']
+        # Create merchant directly in DB — no HTTP call, no interference
+        self.merchant = Merchant.objects.create(
+            business_name='API Auth Corp',
+            email='apiauth@corp.com',
+            phone='9000000000',
+        )
+        full_key, prefix, key_hash = APIKey.generate_key(is_live=False)
+        APIKey.objects.create(
+            merchant=self.merchant,
+            key_prefix=prefix,
+            key_hash=key_hash,
+            is_live=False,
+            permissions={'payments': True, 'refunds': True, 'webhooks': True},
+        )
+        self.api_key = full_key
 
     def test_profile_with_valid_api_key(self):
         response = self.client.get(
             '/v1/accounts/me/',
             HTTP_X_API_KEY=self.api_key
         )
+        print(f"\nDEBUG: status={response.status_code}, data={response.data}, key={self.api_key[:30]}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['email'], 'apiauth@corp.com')
 

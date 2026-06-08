@@ -114,12 +114,11 @@ class MerchantLoginView(APIView):
 
 
 class MerchantProfileView(APIView):
-    """
-    GET /v1/accounts/me
-    Returns merchant profile. Supports both API key and JWT auth.
-    """
     authentication_classes = [APIKeyAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def get_authenticators(self):
+        return [APIKeyAuthentication()]
 
     def get(self, request):
         if isinstance(request.user, Merchant):
