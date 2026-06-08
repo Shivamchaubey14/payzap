@@ -68,8 +68,17 @@ class PaymentService:
             logger.error(f"Payment {payment.id} failed with exception: {e}")
             self._fail_payment(payment, 'INTERNAL_ERROR', str(e))
 
+        # Step 5 — Atomic state update
+            self._update_payment_state(payment, result)
+
+            # Step 6 — Fire async tasks
+            self._fire_post_payment_tasks(payment, order)
+
+        except Exception as e:
+            logger.error(f"Payment {payment.id} failed with exception: {e}")
+            self._fail_payment(payment, 'INTERNAL_ERROR', str(e))
+
         finally:
-            # Always release the lock
             cache.delete(lock_key)
 
         return payment
@@ -143,3 +152,29 @@ class PaymentService:
             failed_at=timezone.now(),
         )
         payment.status = 'failed'
+        
+    def _fire_post_payment_tasks(self, payment, order):
+        """Fire Celery tasks after payment processing — non-blocking."""
+        try:
+            from webhooks.tasks import dispatch_webhook_event
+            from payments.tasks import send_payment_confirmation_email
+
+            event_type = f"payment.{payment.status}"
+            dispatch_webhook_event.delay(
+                str(order.merchant_id),
+                event_type,
+                {
+                    'payment_id': str(payment.id),
+                    'order_id': str(order.id),
+                    'amount': payment.amount,
+                    'status': payment.status,
+                    'gateway_txn_id': payment.gateway_txn_id,
+                }
+            )
+
+            if payment.status == 'captured':
+                send_payment_confirmation_email.delay(str(payment.id))
+
+        except Exception as e:
+            # Never fail a payment because of a webhook/email error
+            logger.warning(f"Post-payment task error for {payment.id}: {e}")
