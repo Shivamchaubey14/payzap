@@ -108,25 +108,22 @@ class PaymentModelTest(TestCase):
         
 class OrderAPITest(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.merchant = Merchant.objects.create(
+    def setUp(self):
+        self.client = APIClient()
+        self.merchant = Merchant.objects.create(
             business_name='Order Test Corp',
             email='orders@corp.com',
             phone='9000000001',
         )
         full_key, prefix, key_hash = APIKey.generate_key(is_live=False)
         APIKey.objects.create(
-            merchant=cls.merchant,
+            merchant=self.merchant,
             key_prefix=prefix,
             key_hash=key_hash,
             is_live=False,
             permissions={'payments': True},
         )
-        cls.api_key = full_key
-
-    def setUp(self):
-        self.client = APIClient()
+        self.api_key = full_key
 
     def test_create_order_returns_201(self):
         response = self.client.post(

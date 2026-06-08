@@ -7,6 +7,8 @@ from rest_framework import status
 from payments.models import Order, Payment
 from payments.serializers import OrderCreateSerializer, OrderResponseSerializer
 from merchants.authentication import APIKeyAuthentication
+from payments.services import PaymentService
+from payments.serializers import PaymentResponseSerializer
 
 
 class OrderCreateView(APIView):
@@ -119,3 +121,94 @@ class OrderListView(APIView):
             'total_pages': (total + page_size - 1) // page_size,
             'items': OrderResponseSerializer(queryset[start:end], many=True).data,
         })
+        
+
+
+class PaymentCreateView(APIView):
+    """
+    POST /v1/payments/
+    Processes a payment for an existing order.
+    """
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        order_id = request.data.get('order_id')
+        if not order_id:
+            return Response({'error': 'order_id is required.'}, status=400)
+
+        try:
+            order = Order.objects.get(id=order_id, merchant=request.user)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found.'}, status=404)
+
+        if order.status in ('paid', 'failed', 'expired'):
+            return Response(
+                {'error': f'Order is already {order.status}.'},
+                status=400
+            )
+
+        payment_data = {
+            'method': request.data.get('method', 'card'),
+            'card_number': request.data.get('card_number', ''),
+            'ip_address': request.META.get('REMOTE_ADDR'),
+            'user_agent': request.META.get('HTTP_USER_AGENT', ''),
+        }
+
+        service = PaymentService()
+        try:
+            payment = service.process_payment(order, payment_data)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+
+        return Response(
+            PaymentResponseSerializer(payment).data,
+            status=status.HTTP_201_CREATED
+        )
+
+
+class PaymentDetailView(APIView):
+    """
+    GET /v1/payments/{id}
+    Fetch payment status and details.
+    """
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, payment_id):
+        try:
+            payment = Payment.objects.select_related('order__merchant').get(id=payment_id)
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment not found.'}, status=404)
+
+        if payment.order.merchant != request.user:
+            return Response({'error': 'Permission denied.'}, status=403)
+
+        return Response(PaymentResponseSerializer(payment).data)
+
+
+class PaymentCaptureView(APIView):
+    """
+    POST /v1/payments/{id}/capture
+    Capture an authorized payment.
+    """
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, payment_id):
+        try:
+            payment = Payment.objects.select_related('order__merchant').get(id=payment_id)
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment not found.'}, status=404)
+
+        if payment.order.merchant != request.user:
+            return Response({'error': 'Permission denied.'}, status=403)
+
+        amount = request.data.get('amount')
+        service = PaymentService()
+        try:
+            payment = service.capture_payment(payment, amount)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+
+        return Response(PaymentResponseSerializer(payment).data)
