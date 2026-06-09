@@ -90,6 +90,7 @@ class WalletService:
                 )
                 payment.status = 'failed'
 
+        payment.refresh_from_db()
         logger.info(
             f"Wallet payment {payment.id} via {wallet_info['name']}: {payment.status}"
         )
