@@ -34,6 +34,10 @@ INSTALLED_APPS = [
     'webhooks',
 ]
 
+# ── Payment Gateway ───────────────────────────────────────────────────────────
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
+
 # ── Middleware ────────────────────────────────────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

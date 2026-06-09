@@ -46,7 +46,7 @@ class Merchant(models.Model):
 class APIKey(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='api_keys')
-    key_prefix = models.CharField(max_length=20)        # e.g. rzp_live_ABC123
+    key_prefix = models.CharField(max_length=30)        # e.g. rzp_live_ABC123
     key_hash = models.CharField(max_length=128)         # PBKDF2-SHA256 hash — never raw
     is_live = models.BooleanField(default=False)
     permissions = models.JSONField(default=dict)        # e.g. {"payments": true, "refunds": true}

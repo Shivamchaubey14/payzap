@@ -55,5 +55,6 @@ class PaymentResponseSerializer(serializers.ModelSerializer):
             'id', 'order_id', 'method', 'status',
             'amount', 'currency', 'gateway_txn_id',
             'amount_refunded', 'captured_at', 'failed_at',
-            'failure_reason', 'created_at'
+            'failure_reason', 'card_network', 'card_last4',
+            'bank', 'is_3ds', 'three_ds_url', 'created_at'
         ]

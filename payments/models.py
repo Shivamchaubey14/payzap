@@ -81,6 +81,13 @@ class Payment(models.Model):
     error_code = models.CharField(max_length=100, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
+    # Card-specific fields
+    card_network = models.CharField(max_length=20, blank=True)   # visa/mastercard/rupay
+    card_last4 = models.CharField(max_length=4, blank=True)
+    card_token = models.CharField(max_length=255, blank=True)    # Vault token — never raw PAN
+    bank = models.CharField(max_length=100, blank=True)
+    is_3ds = models.BooleanField(default=False)
+    three_ds_url = models.URLField(blank=True)                   # ACS redirect URL
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

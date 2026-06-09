@@ -1,3 +1,4 @@
+import base64
 import hashlib
 from django.utils import timezone
 from rest_framework.authentication import BaseAuthentication
@@ -27,7 +28,6 @@ class APIKeyAuthentication(BaseAuthentication):
             return key
 
         # Try HTTP Basic Auth (key as username, empty password)
-        import base64
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         if auth_header.startswith('Basic '):
             try:
@@ -41,12 +41,29 @@ class APIKeyAuthentication(BaseAuthentication):
         return None
 
     def _validate_key(self, api_key):
-        # Extract prefix (first 20 chars: "rzp_live_XXXXXXXX")
-        parts = api_key.split('_')
-        if len(parts) < 3:
+        # Prefix is always "rzp_live_XXXXXXXX" or "rzp_test_XXXXXXXX"
+        # Format: {mode}_{8-char-segment}_{rest}
+        # We can't split by '_' because token_urlsafe output can contain '_'
+        # Instead, extract prefix as everything before the 3rd underscore-delimited segment
+        # Structure: rzp _ test _ <8chars> _ <rest>
+        #            [0]   [1]     [2]       [3+]
+        # But raw[:8] may itself contain '_', so we CANNOT rely on split('_')
+        # The prefix was stored as f"rzp_{'live' if live else 'test'}_{raw[:8]}"
+        # and full_key = f"{prefix}_{raw[8:]}"
+        # So: prefix = full_key up to the (9 + len('rzp_test_')) char boundary
+
+        if api_key.startswith('rzp_live_'):
+            mode_prefix = 'rzp_live_'
+        elif api_key.startswith('rzp_test_'):
+            mode_prefix = 'rzp_test_'
+        else:
             raise AuthenticationFailed('Invalid API key format.')
 
-        prefix = f"{parts[0]}_{parts[1]}_{parts[2]}"
+        # prefix = "rzp_test_" + next 8 characters
+        if len(api_key) < len(mode_prefix) + 8:
+            raise AuthenticationFailed('Invalid API key format.')
+
+        prefix = api_key[:len(mode_prefix) + 8]  # e.g. "rzp_test_qw_Bh7uM"
 
         # Look up by prefix
         try:

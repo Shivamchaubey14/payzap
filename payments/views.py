@@ -148,16 +148,23 @@ class PaymentCreateView(APIView):
                 status=400
             )
 
+        method = request.data.get('method', 'card')
         payment_data = {
-            'method': request.data.get('method', 'card'),
+            'method': method,
             'card_number': request.data.get('card_number', ''),
             'ip_address': request.META.get('REMOTE_ADDR'),
             'user_agent': request.META.get('HTTP_USER_AGENT', ''),
         }
 
-        service = PaymentService()
         try:
-            payment = service.process_payment(order, payment_data)
+            if method == 'card' and payment_data.get('card_number'):
+                from payments.card_service import CardPaymentService
+                service = CardPaymentService()
+                payment = service.process_card_payment(order, payment_data)
+            else:
+                from payments.services import PaymentService
+                service = PaymentService()
+                payment = service.process_payment(order, payment_data)
         except ValueError as e:
             return Response({'error': str(e)}, status=400)
 

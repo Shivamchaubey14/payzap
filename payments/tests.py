@@ -110,9 +110,11 @@ class OrderAPITest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
+        # Use unique email per test to avoid cross-test DB conflicts
+        unique = uuid.uuid4().hex[:8]
         self.merchant = Merchant.objects.create(
-            business_name='Order Test Corp',
-            email='orders@corp.com',
+            business_name=f'Order Test Corp {unique}',
+            email=f'orders_{unique}@corp.com',
             phone='9000000001',
         )
         full_key, prefix, key_hash = APIKey.generate_key(is_live=False)
@@ -231,7 +233,10 @@ class OrderAPITest(TestCase):
     def test_list_orders_returns_200(self):
         Order.objects.create(merchant=self.merchant, amount=10000, idempotency_key=str(uuid.uuid4()))
         Order.objects.create(merchant=self.merchant, amount=20000, idempotency_key=str(uuid.uuid4()))
-        response = self.client.get('/v1/orders/', HTTP_X_API_KEY=self.api_key)
+        response = self.client.get(
+            '/v1/orders/',
+            **{'HTTP_X_API_KEY': self.api_key}
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['count'], 2)
 
