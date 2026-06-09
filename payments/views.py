@@ -173,7 +173,21 @@ class PaymentCreateView(APIView):
                     # UPI Intent flow — generate QR
                     merchant_name = request.user.business_name
                     payment = service.process_upi_intent(order, merchant_name)
+            elif method == 'netbanking':
+                from payments.netbanking_service import NetBankingService
+                bank_code = request.data.get('bank_code', '')
+                if not bank_code:
+                    return Response({'error': 'bank_code is required for netbanking.'}, status=400)
+                service = NetBankingService()
+                payment = service.process_netbanking(order, bank_code)
 
+            elif method == 'wallet':
+                from payments.wallet_service import WalletService
+                wallet_provider = request.data.get('wallet_provider', '')
+                if not wallet_provider:
+                    return Response({'error': 'wallet_provider is required for wallet payments.'}, status=400)
+                service = WalletService()
+                payment = service.process_wallet_payment(order, wallet_provider)
             else:
                 from payments.services import PaymentService
                 service = PaymentService()
@@ -232,3 +246,17 @@ class PaymentCaptureView(APIView):
             return Response({'error': str(e)}, status=400)
 
         return Response(PaymentResponseSerializer(payment).data)
+    
+class BankListView(APIView):
+    """
+    GET /v1/banks/
+    Returns list of supported net banking banks.
+    No auth required — public endpoint.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        from payments.models import Bank
+        banks = Bank.objects.filter(is_active=True).values('name', 'code')
+        return Response({'banks': list(banks)})

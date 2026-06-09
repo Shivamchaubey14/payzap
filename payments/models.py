@@ -3,6 +3,20 @@ from django.db import models
 from merchants.models import Merchant
 
 
+class Bank(models.Model):
+    name         = models.CharField(max_length=100)
+    code         = models.CharField(max_length=20, unique=True)   # our internal code
+    gateway_code = models.CharField(max_length=20)                # code sent to gateway
+    is_active    = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'banks'
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('created', 'Created'),
@@ -92,6 +106,15 @@ class Payment(models.Model):
     upi_vpa        = models.CharField(max_length=100, blank=True)
     upi_intent_url = models.CharField(max_length=500, blank=True)
     upi_qr_code    = models.TextField(blank=True)
+    
+    # Net banking fields
+    bank_code        = models.CharField(max_length=20, blank=True)
+    bank_name        = models.CharField(max_length=100, blank=True)
+    netbanking_url   = models.TextField(blank=True)   # redirect URL to bank login
+
+    # Wallet fields
+    wallet_provider  = models.CharField(max_length=30, blank=True)  # paytm/phonepe/amazonpay
+    wallet_txn_id    = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

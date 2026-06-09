@@ -58,5 +58,7 @@ class PaymentResponseSerializer(serializers.ModelSerializer):
             'failure_reason', 'card_network', 'card_last4',
             'bank', 'is_3ds', 'three_ds_url',
             'upi_vpa', 'upi_intent_url', 'upi_qr_code',
+            'bank_code', 'bank_name', 'netbanking_url',
+            'wallet_provider', 'wallet_txn_id',
             'created_at'
         ]

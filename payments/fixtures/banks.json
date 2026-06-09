@@ -1,0 +1,17 @@
+[
+  {"model": "payments.bank", "pk": 1, "fields": {"name": "State Bank of India", "code": "SBI", "gateway_code": "SBIN", "is_active": true}},
+  {"model": "payments.bank", "pk": 2, "fields": {"name": "HDFC Bank", "code": "HDFC", "gateway_code": "HDFC", "is_active": true}},
+  {"model": "payments.bank", "pk": 3, "fields": {"name": "ICICI Bank", "code": "ICICI", "gateway_code": "ICICI", "is_active": true}},
+  {"model": "payments.bank", "pk": 4, "fields": {"name": "Axis Bank", "code": "AXIS", "gateway_code": "UTIB", "is_active": true}},
+  {"model": "payments.bank", "pk": 5, "fields": {"name": "Kotak Mahindra Bank", "code": "KOTAK", "gateway_code": "KKBK", "is_active": true}},
+  {"model": "payments.bank", "pk": 6, "fields": {"name": "Punjab National Bank", "code": "PNB", "gateway_code": "PUNB", "is_active": true}},
+  {"model": "payments.bank", "pk": 7, "fields": {"name": "Bank of Baroda", "code": "BOB", "gateway_code": "BARB", "is_active": true}},
+  {"model": "payments.bank", "pk": 8, "fields": {"name": "Canara Bank", "code": "CANARA", "gateway_code": "CNRB", "is_active": true}},
+  {"model": "payments.bank", "pk": 9, "fields": {"name": "Union Bank of India", "code": "UNION", "gateway_code": "UBIN", "is_active": true}},
+  {"model": "payments.bank", "pk": 10, "fields": {"name": "IndusInd Bank", "code": "INDUSIND", "gateway_code": "INDB", "is_active": true}},
+  {"model": "payments.bank", "pk": 11, "fields": {"name": "Yes Bank", "code": "YES", "gateway_code": "YESB", "is_active": true}},
+  {"model": "payments.bank", "pk": 12, "fields": {"name": "IDFC First Bank", "code": "IDFC", "gateway_code": "IDFB", "is_active": true}},
+  {"model": "payments.bank", "pk": 13, "fields": {"name": "Federal Bank", "code": "FEDERAL", "gateway_code": "FDRL", "is_active": true}},
+  {"model": "payments.bank", "pk": 14, "fields": {"name": "RBL Bank", "code": "RBL", "gateway_code": "RATN", "is_active": true}},
+  {"model": "payments.bank", "pk": 15, "fields": {"name": "South Indian Bank", "code": "SIB", "gateway_code": "SIBL", "is_active": true}}
+]
