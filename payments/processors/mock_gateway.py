@@ -18,6 +18,19 @@ class MockBankGateway(PaymentProcessor):
     PROCESSING_DELAY = 0.1
 
     def authorize(self, payment, payment_data: dict) -> PaymentResult:
+        # UPI payments — always succeed in mock (no card number)
+        method = payment_data.get('method', 'card')
+        if method == 'upi':
+            gateway_txn_id = f"mock_upi_{uuid.uuid4().hex[:12]}"
+            return PaymentResult(
+                success=True,
+                status='authorized',
+                gateway_txn_id=gateway_txn_id,
+                raw_response={
+                    'txn_id': gateway_txn_id,
+                    'message': 'UPI debit request sent successfully',
+                }
+            )
         time.sleep(self.PROCESSING_DELAY)
         card_number = payment_data.get('card_number', '')
         scenario = self._get_scenario(card_number)

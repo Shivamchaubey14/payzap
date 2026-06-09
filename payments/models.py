@@ -88,6 +88,10 @@ class Payment(models.Model):
     bank = models.CharField(max_length=100, blank=True)
     is_3ds = models.BooleanField(default=False)
     three_ds_url = models.URLField(blank=True)                   # ACS redirect URL
+    # UPI-specific fields
+    upi_vpa        = models.CharField(max_length=100, blank=True)
+    upi_intent_url = models.CharField(max_length=500, blank=True)
+    upi_qr_code    = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

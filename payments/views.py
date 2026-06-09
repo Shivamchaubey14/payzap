@@ -161,13 +161,26 @@ class PaymentCreateView(APIView):
                 from payments.card_service import CardPaymentService
                 service = CardPaymentService()
                 payment = service.process_card_payment(order, payment_data)
+
+            elif method == 'upi':
+                from payments.upi_service import UPIService
+                service = UPIService()
+                upi_vpa = request.data.get('upi_vpa', '')
+                if upi_vpa:
+                    # UPI Collect flow
+                    payment = service.process_upi_collect(order, {'upi_vpa': upi_vpa})
+                else:
+                    # UPI Intent flow — generate QR
+                    merchant_name = request.user.business_name
+                    payment = service.process_upi_intent(order, merchant_name)
+
             else:
                 from payments.services import PaymentService
                 service = PaymentService()
                 payment = service.process_payment(order, payment_data)
+
         except ValueError as e:
             return Response({'error': str(e)}, status=400)
-
         return Response(
             PaymentResponseSerializer(payment).data,
             status=status.HTTP_201_CREATED

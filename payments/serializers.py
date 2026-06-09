@@ -56,5 +56,7 @@ class PaymentResponseSerializer(serializers.ModelSerializer):
             'amount', 'currency', 'gateway_txn_id',
             'amount_refunded', 'captured_at', 'failed_at',
             'failure_reason', 'card_network', 'card_last4',
-            'bank', 'is_3ds', 'three_ds_url', 'created_at'
+            'bank', 'is_3ds', 'three_ds_url',
+            'upi_vpa', 'upi_intent_url', 'upi_qr_code',
+            'created_at'
         ]
