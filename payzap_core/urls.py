@@ -20,6 +20,7 @@ urlpatterns = [
     path('v1/', include('merchants.urls')),
     path('v1/', include('payments.urls')),
     path('v1/', include('settlements.urls')),
+    path('v1/', include('payouts.urls')),
     path('v1/', include('webhooks.urls')),
     path('dashboard/', include('merchants.dashboard_urls')),
 ]

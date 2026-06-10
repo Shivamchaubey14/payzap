@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'payments',
     'settlements',
     'webhooks',
+    'payouts',
 ]
 
 # ── Payment Gateway ───────────────────────────────────────────────────────────
