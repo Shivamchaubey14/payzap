@@ -25,7 +25,7 @@ class RefundService:
         notes = notes or {}
 
         # Validate payment is refundable
-        if payment.status not in ('captured', 'authorized', 'partially_refunded'):
+        if payment.status not in ('captured','partially_refunded'):
             raise ValueError(
                 f'Payment {payment.id} cannot be refunded '
                 f'(status: {payment.status}). Only captured or authorized payments are refundable.'
