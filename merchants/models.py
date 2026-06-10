@@ -21,6 +21,11 @@ class Merchant(models.Model):
     gstin = models.CharField(max_length=15, blank=True)
     bank_account_number = models.CharField(max_length=20, blank=True)
     bank_ifsc = models.CharField(max_length=11, blank=True)
+    bank_verified = models.BooleanField(default=False)        # penny drop verified
+    kyc_rejection_reason = models.TextField(blank=True)       # reason when rejected
+    kyc_submitted_at = models.DateTimeField(null=True, blank=True)
+    kyc_reviewed_at = models.DateTimeField(null=True, blank=True)
+    kyc_reviewed_by = models.CharField(max_length=100, blank=True)
     kyc_status = models.CharField(max_length=20, choices=KYC_STATUS, default='pending')
     fee_rate = models.DecimalField(max_digits=5, decimal_places=4, default=0.0200)  # 2% default
     is_live = models.BooleanField(default=False)
@@ -76,3 +81,42 @@ class APIKey(models.Model):
         full_key = f"{prefix}_{raw[8:]}"
         key_hash = hashlib.pbkdf2_hmac('sha256', full_key.encode(), b'payzap_salt', 100000).hex()
         return full_key, prefix, key_hash
+    
+class KYCDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('aadhar',            'Aadhar Card'),
+        ('pan',               'PAN Card'),
+        ('business_reg',      'Business Registration'),
+        ('cancelled_cheque',  'Cancelled Cheque'),
+        ('bank_statement',    'Bank Statement'),
+        ('gst_certificate',   'GST Certificate'),
+    ]
+
+    STATUS_CHOICES = [
+        ('uploaded',  'Uploaded'),
+        ('verified',  'Verified'),
+        ('rejected',  'Rejected'),
+    ]
+
+    id            = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    merchant      = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='kyc_documents')
+    document_type = models.CharField(max_length=30, choices=DOCUMENT_TYPES)
+    file_key      = models.CharField(max_length=500)   # S3 object key — never expose directly
+    file_name     = models.CharField(max_length=255)
+    file_size     = models.PositiveIntegerField(default=0)  # bytes
+    mime_type     = models.CharField(max_length=100, blank=True)
+    status        = models.CharField(max_length=20, choices=STATUS_CHOICES, default='uploaded')
+    rejection_reason = models.TextField(blank=True)
+    uploaded_at   = models.DateTimeField(auto_now_add=True)
+    verified_at   = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'kyc_documents'
+        indexes  = [
+            models.Index(fields=['merchant', 'document_type']),
+            models.Index(fields=['status']),
+        ]
+        unique_together = [['merchant', 'document_type']]  # one doc per type per merchant
+
+    def __str__(self):
+        return f"{self.merchant.business_name} — {self.document_type} ({self.status})"

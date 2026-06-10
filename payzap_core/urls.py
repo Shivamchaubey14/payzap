@@ -18,6 +18,7 @@ urlpatterns = [
 
     # App routes (will add more as we build each day)
     path('v1/', include('merchants.urls')),
+    path('v1/', include('merchants.kyc_urls')),
     path('v1/', include('payments.urls')),
     path('v1/', include('settlements.urls')),
     path('v1/', include('payouts.urls')),
