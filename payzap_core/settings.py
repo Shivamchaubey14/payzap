@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'webhooks',
     'payouts',
     'fraud',
+    'admin_panel',
 ]
 
 # ── Payment Gateway ───────────────────────────────────────────────────────────

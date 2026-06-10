@@ -25,4 +25,5 @@ urlpatterns = [
     path('v1/', include('fraud.urls')),
     path('v1/', include('webhooks.urls')),
     path('dashboard/', include('merchants.dashboard_urls')),
+    path('admin-panel/', include('admin_panel.urls')),
 ]

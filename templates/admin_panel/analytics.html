@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayZap Platform Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Lexend', sans-serif; background: #f8fafc; color: #1e293b; padding: 32px; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+        h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #475569; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; }
+        .stat-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .green { color: #16a34a; }
+        .red { color: #dc2626; }
+        .orange { color: #d97706; }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-green { background: #dcfce7; color: #15803d; }
+        .badge-red { background: #fee2e2; color: #b91c1c; }
+        .chart-container { height: 220px; position: relative; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        a { color: #2563eb; text-decoration: none; font-size: 13px; }
+        .nav { display: flex; gap: 16px; margin-bottom: 28px; }
+        .nav a { padding: 8px 16px; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0; font-weight: 500; }
+        .nav a:hover { background: #eff6ff; color: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin/">Django Admin</a>
+        <a href="/admin-panel/analytics/">Analytics</a>
+        <a href="/admin-panel/merchants/">Merchants</a>
+        <a href="/dashboard/">Merchant Dashboard</a>
+    </div>
+
+    <h1>⚡ Platform Analytics</h1>
+
+    <div class="grid-4">
+        <div class="card">
+            <div class="stat-label">Total GMV</div>
+            <div class="stat-value">₹{{ total_gmv|floatformat:2 }}</div>
+            <div class="stat-sub">All time captured</div>
+        </div>
+        <div class="card">
+            <div class="stat-label">Today's GMV</div>
+            <div class="stat-value">₹{{ today_gmv|floatformat:2 }}</div>
+            <div class="stat-sub">Today captured</div>
+        </div>
+        <div class="card">
+            <div class="stat-label">Success Rate</div>
+            <div class="stat-value {% if success_rate >= 95 %}green{% else %}red{% endif %}">
+                {{ success_rate }}%
+            </div>
+            <div class="stat-sub">Today's payments</div>
+        </div>
+        <div class="card">
+            <div class="stat-label">Settlement Due</div>
+            <div class="stat-value">₹{{ pending_settlements|floatformat:2 }}</div>
+            <div class="stat-sub">Pending payouts</div>
+        </div>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="stat-label">Total Merchants</div>
+            <div class="stat-value">{{ total_merchants }}</div>
+            <div class="stat-sub">{{ live_merchants }} live</div>
+        </div>
+        <div class="card">
+            <div class="stat-label">KYC Pending Review</div>
+            <div class="stat-value {% if pending_kyc > 0 %}orange{% endif %}">{{ pending_kyc }}</div>
+            <div class="stat-sub"><a href="/admin/merchants/merchant/?kyc_status=submitted">Review queue →</a></div>
+        </div>
+        <div class="card">
+            <div class="stat-label">Fraud Signals Today</div>
+            <div class="stat-value {% if fraud_today > 0 %}red{% endif %}">{{ fraud_today }}</div>
+            <div class="stat-sub">{{ pending_review }} pending review</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2>Revenue — Last 7 Days</h2>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h2>System Health</h2>
+            <table>
+                <tr>
+                    <td>Redis</td>
+                    <td>
+                        {% if redis_info.connected %}
+                            <span class="badge badge-green">● Connected</span>
+                        {% else %}
+                            <span class="badge badge-red">● Down</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if redis_info.connected %}
+                <tr><td>Memory Used</td><td>{{ redis_info.used_memory }}</td></tr>
+                <tr><td>Clients</td><td>{{ redis_info.connected_clients }}</td></tr>
+                <tr><td>Uptime</td><td>{{ redis_info.uptime_days }} days</td></tr>
+                {% endif %}
+                <tr><td>Dead Letter Webhooks</td>
+                    <td class="{% if dead_letters > 0 %}red{% endif %}">{{ dead_letters }}</td></tr>
+                <tr><td>Failed Webhooks</td>
+                    <td class="{% if failed_webhooks > 0 %}orange{% endif %}">{{ failed_webhooks }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: [{% for d in daily_revenue %}'{{ d.date }}',{% endfor %}],
+                datasets: [{
+                    data: [{% for d in daily_revenue %}{{ d.amount }},{% endfor %}],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37,99,235,.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { callback: v => '₹' + v.toLocaleString('en-IN') } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
