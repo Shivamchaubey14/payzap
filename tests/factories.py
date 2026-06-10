@@ -57,3 +57,5 @@ class PaymentFactory(factory.django.DjangoModelFactory):
     amount = 50000
     method = 'card'
     status = 'created'
+    amount_refunded = 0
+    in_settlement = False

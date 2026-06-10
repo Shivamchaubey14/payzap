@@ -30,7 +30,7 @@ def process_daily_settlements():
             payments = Payment.objects.filter(
                 order__merchant=merchant,
                 status='captured',
-                captured_at__date=today,
+                in_settlement=False,
             )
 
             if not payments.exists():
@@ -61,6 +61,8 @@ def process_daily_settlements():
 
             # Initiate bank payout (mock for now)
             _initiate_bank_payout(settlement)
+            # Mark payments as in settlement
+            payments.update(in_settlement=True)
 
             logger.info(
                 f"Settlement {settlement.id} created for merchant "

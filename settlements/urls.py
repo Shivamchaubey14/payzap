@@ -1,5 +1,6 @@
 from django.urls import path
- 
+from settlements.views import SettlementListView
+
 urlpatterns = [
-    # Routes will be added Day 2 onwards
+    path('settlements/', SettlementListView.as_view(), name='settlement-list'),
 ]

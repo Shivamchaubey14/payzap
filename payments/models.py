@@ -115,6 +115,7 @@ class Payment(models.Model):
     # Wallet fields
     wallet_provider  = models.CharField(max_length=30, blank=True)  # paytm/phonepe/amazonpay
     wallet_txn_id    = models.CharField(max_length=100, blank=True)
+    in_settlement = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
