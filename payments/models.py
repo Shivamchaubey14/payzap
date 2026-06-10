@@ -133,3 +133,40 @@ class Payment(models.Model):
     @property
     def refundable_amount(self):
         return self.amount - self.amount_refunded
+    
+    
+class Refund(models.Model):
+    STATUS_CHOICES = [
+        ('initiated', 'Initiated'),
+        ('processing', 'Processing'),
+        ('processed', 'Processed'),
+        ('failed', 'Failed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    payment = models.ForeignKey(Payment, on_delete=models.PROTECT, related_name='refunds')
+    amount = models.PositiveIntegerField()           # In paise
+    currency = models.CharField(max_length=3, default='INR')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='initiated')
+    reason = models.CharField(max_length=255, blank=True)
+    notes = models.JSONField(default=dict, blank=True)
+    initiated_by = models.CharField(max_length=100, blank=True)  # merchant or system
+    gateway_refund_id = models.CharField(max_length=255, blank=True)
+    failure_reason = models.CharField(max_length=500, blank=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'refunds'
+        indexes = [
+            models.Index(fields=['payment', 'status']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"Refund {self.id} — ₹{self.amount/100:.2f} ({self.status})"
+
+    @property
+    def amount_in_rupees(self):
+        return self.amount / 100

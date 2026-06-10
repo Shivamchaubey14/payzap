@@ -1,6 +1,7 @@
 import uuid
 from rest_framework import serializers
 from payments.models import Order, Payment
+from payments.models import Refund
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
@@ -62,3 +63,20 @@ class PaymentResponseSerializer(serializers.ModelSerializer):
             'wallet_provider', 'wallet_txn_id',
             'created_at'
         ]
+        
+
+class RefundSerializer(serializers.ModelSerializer):
+    amount_in_rupees = serializers.SerializerMethodField()
+    payment_id = serializers.UUIDField(source='payment.id', read_only=True)
+
+    class Meta:
+        model = Refund
+        fields = [
+            'id', 'payment_id', 'amount', 'amount_in_rupees',
+            'currency', 'status', 'reason', 'notes',
+            'gateway_refund_id', 'failure_reason',
+            'processed_at', 'created_at',
+        ]
+
+    def get_amount_in_rupees(self, obj):
+        return obj.amount / 100

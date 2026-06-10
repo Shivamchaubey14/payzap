@@ -4,8 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from payments.models import Order, Payment
-from payments.serializers import OrderCreateSerializer, OrderResponseSerializer
+from payments.models import Order, Payment, Refund
+from payments.refund_service import RefundService
+from payments.serializers import OrderCreateSerializer, OrderResponseSerializer, RefundSerializer
 from merchants.authentication import APIKeyAuthentication
 from payments.services import PaymentService
 from payments.serializers import PaymentResponseSerializer
@@ -260,3 +261,63 @@ class BankListView(APIView):
         from payments.models import Bank
         banks = Bank.objects.filter(is_active=True).values('name', 'code')
         return Response({'banks': list(banks)})
+    
+    
+class RefundCreateView(APIView):
+    """
+    POST /v1/refunds/
+    Initiates a full or partial refund on a captured payment.
+    """
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        payment_id = request.data.get('payment_id')
+        amount = request.data.get('amount')
+
+        if not payment_id:
+            return Response({'error': 'payment_id is required.'}, status=400)
+        if not amount:
+            return Response({'error': 'amount is required.'}, status=400)
+
+        try:
+            payment = Payment.objects.select_related('order__merchant').get(
+                id=payment_id,
+                order__merchant=request.user,
+            )
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment not found.'}, status=404)
+
+        service = RefundService()
+        try:
+            refund = service.initiate_refund(
+                payment=payment,
+                amount=int(amount),
+                reason=request.data.get('reason', ''),
+                notes=request.data.get('notes', {}),
+            )
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+
+        return Response(
+            RefundSerializer(refund).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class RefundDetailView(APIView):
+    """
+    GET /v1/refunds/{id}/
+    Fetch refund status and details.
+    """
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, refund_id):
+        service = RefundService()
+        try:
+            refund = service.get_refund(str(refund_id), request.user)
+        except ValueError:
+            return Response({'error': 'Refund not found.'}, status=404)
+
+        return Response(RefundSerializer(refund).data)

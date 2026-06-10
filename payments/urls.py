@@ -1,7 +1,7 @@
 from django.urls import path
 from payments.views import (
     OrderCreateView, OrderDetailView, OrderListView,
-    PaymentCreateView, PaymentDetailView, PaymentCaptureView,BankListView
+    PaymentCreateView, PaymentDetailView, PaymentCaptureView,BankListView, RefundCreateView, RefundDetailView
 )
 
 urlpatterns = [
@@ -12,4 +12,6 @@ urlpatterns = [
     path('payments/', PaymentCreateView.as_view(), name='payment-create'),
     path('payments/<uuid:payment_id>/', PaymentDetailView.as_view(), name='payment-detail'),
     path('payments/<uuid:payment_id>/capture/', PaymentCaptureView.as_view(), name='payment-capture'),
+    path('refunds/', RefundCreateView.as_view(), name='refund-create'),
+    path('refunds/<uuid:refund_id>/', RefundDetailView.as_view(), name='refund-detail'),
 ]
