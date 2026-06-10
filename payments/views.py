@@ -1,5 +1,6 @@
 from django.utils import timezone
 from datetime import timedelta
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +21,24 @@ class OrderCreateView(APIView):
     """
     authentication_classes = [APIKeyAuthentication]
     permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+    summary="Create a payment order",
+    description="Creates a new order. Use the returned order_id to initiate payment via Checkout.js or API.",
+    responses={201: None},
+    examples=[
+        OpenApiExample(
+            'Example Request',
+            value={
+                "amount": 50000,
+                "currency": "INR",
+                "receipt": "order_rcpt_001",
+                "notes": {"customer_name": "Rahul Sharma"}
+            },
+            request_only=True,
+        )
+            ]
+                )
 
     def post(self, request):
         serializer = OrderCreateSerializer(data=request.data)

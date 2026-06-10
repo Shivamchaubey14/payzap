@@ -186,3 +186,22 @@ def dashboard_login(request):
 def dashboard_logout(request):
     logout(request)
     return redirect('/dashboard/login/')
+
+@login_required(login_url='/dashboard/login/')
+def sandbox(request):
+    merchant = get_merchant(request)
+    if not merchant:
+        return redirect('/dashboard/login/')
+
+    from merchants.models import APIKey
+    test_key = APIKey.objects.filter(
+        merchant=merchant,
+        is_live=False,
+        is_active=True,
+    ).first()
+
+    return render(request, 'dashboard/sandbox.html', {
+        'merchant': merchant,
+        'test_api_key': test_key.display_key if test_key else 'No test key found — create one via API',
+        'base_url': request.build_absolute_uri('/').rstrip('/'),
+    })

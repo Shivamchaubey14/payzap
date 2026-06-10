@@ -63,6 +63,10 @@ class APIKey(models.Model):
 
     def __str__(self):
         return f"{self.key_prefix} ({'live' if self.is_live else 'test'})"
+    
+    @property
+    def display_key(self):
+        return f"{self.key_prefix}{'*' * 20}"
 
     @staticmethod
     def generate_key(is_live=False):

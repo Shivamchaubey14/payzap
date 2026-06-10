@@ -5,6 +5,7 @@ from merchants.dashboard_views import (
     payment_detail,
     dashboard_login,
     dashboard_logout,
+    sandbox,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('payments/<uuid:payment_id>/', payment_detail, name='dashboard-payment-detail'),
     path('login/', dashboard_login, name='dashboard-login'),
     path('logout/', dashboard_logout, name='dashboard-logout'),
+    path('sandbox/', sandbox, name='dashboard-sandbox'),
 ]

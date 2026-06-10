@@ -1,0 +1,145 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Sandbox — PayZap{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Sandbox & Test Data</h1>
+    <p class="page-subtitle">Use these test credentials to simulate payments without real money</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Test Card Numbers</span></div>
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Card Number</th>
+                        <th>Scenario</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family:monospace;">4111 1111 1111 1111</td>
+                        <td>Visa — Success</td>
+                        <td><span class="badge badge-success">Captured</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;">4000 0000 0000 0002</td>
+                        <td>Visa — Decline</td>
+                        <td><span class="badge badge-danger">Failed</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;">4000 0000 0000 3220</td>
+                        <td>Visa — 3DS Required</td>
+                        <td><span class="badge badge-info">3DS Auth</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;">5200 8282 8282 8210</td>
+                        <td>Mastercard — Success</td>
+                        <td><span class="badge badge-success">Captured</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;">6074 8291 0000 0001</td>
+                        <td>RuPay — Success</td>
+                        <td><span class="badge badge-success">Captured</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:16px;">
+                Use any future expiry date, any 3-digit CVV, any cardholder name.
+            </p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Test UPI IDs</span></div>
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>UPI ID</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family:monospace;">success@upi</td>
+                        <td><span class="badge badge-success">Success</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;">failure@upi</td>
+                        <td><span class="badge badge-danger">Failed</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;">pending@upi</td>
+                        <td><span class="badge badge-warning">Pending</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Your Test API Key</span></div>
+        <div class="card-body">
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+                Use this key for all sandbox API calls. It will never charge real money.
+            </p>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;
+                        padding:12px 16px;font-family:monospace;font-size:13px;
+                        display:flex;justify-content:space-between;align-items:center;">
+                <span id="apiKey">{{ test_api_key }}</span>
+                <button class="btn btn-outline" onclick="copyKey()" style="padding:4px 12px;font-size:12px;">
+                    Copy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Quick API Test</span></div>
+        <div class="card-body">
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+                Create a test order instantly:
+            </p>
+            <pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;
+                        padding:16px;font-size:12px;overflow-x:auto;">curl -u {{ test_api_key }}: \
+  -X POST {{ base_url }}/v1/orders/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 50000,
+    "currency": "INR",
+    "receipt": "test_001"
+  }'</pre>
+        </div>
+    </div>
+
+</div>
+
+<div class="card" style="margin-top:4px;">
+    <div class="card-header">
+        <span class="card-title">API Documentation</span>
+    </div>
+    <div class="card-body" style="display:flex;gap:16px;">
+        <a href="/api/docs/" target="_blank" class="btn btn-primary">
+            Open Swagger UI ↗
+        </a>
+        <a href="/api/redoc/" target="_blank" class="btn btn-outline">
+            Open ReDoc ↗
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyKey() {
+    navigator.clipboard.writeText(document.getElementById('apiKey').innerText);
+    event.target.innerText = 'Copied!';
+    setTimeout(() => event.target.innerText = 'Copy', 2000);
+}
+</script>
+{% endblock %}
