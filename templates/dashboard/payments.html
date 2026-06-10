@@ -1,0 +1,109 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Payments — PayZap{% endblock %}
+{% block nav_payments %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Payments</h1>
+    <p class="page-subtitle">{{ total_count }} total payments</p>
+</div>
+
+<!-- Filters -->
+<form method="get" class="filters">
+    <input type="date" name="from" class="filter-input"
+           value="{{ request.GET.from }}" placeholder="From date">
+    <input type="date" name="to" class="filter-input"
+           value="{{ request.GET.to }}" placeholder="To date">
+    <select name="status" class="filter-select">
+        <option value="">All Statuses</option>
+        <option value="captured" {% if request.GET.status == 'captured' %}selected{% endif %}>Captured</option>
+        <option value="authorized" {% if request.GET.status == 'authorized' %}selected{% endif %}>Authorized</option>
+        <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+        <option value="refunded" {% if request.GET.status == 'refunded' %}selected{% endif %}>Refunded</option>
+    </select>
+    <select name="method" class="filter-select">
+        <option value="">All Methods</option>
+        <option value="card" {% if request.GET.method == 'card' %}selected{% endif %}>Card</option>
+        <option value="upi" {% if request.GET.method == 'upi' %}selected{% endif %}>UPI</option>
+        <option value="netbanking" {% if request.GET.method == 'netbanking' %}selected{% endif %}>Net Banking</option>
+        <option value="wallet" {% if request.GET.method == 'wallet' %}selected{% endif %}>Wallet</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+    <a href="/dashboard/payments/" class="btn btn-outline">Clear</a>
+</form>
+
+<div class="card">
+    <div class="card-body" style="padding-top:8px;">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Order ID</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Gateway TXN</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr style="cursor:pointer;"
+                        onclick="window.location='/dashboard/payments/{{ payment.id }}/'">
+                        <td style="font-family:monospace;font-size:12px;">
+                            {{ payment.id|slice:":8" }}...
+                        </td>
+                        <td style="font-family:monospace;font-size:12px;">
+                            {{ payment.order_id|slice:":8" }}...
+                        </td>
+                        <td><strong>₹{{ payment.amount_rupees }}</strong></td>
+                        <td>{{ payment.method|upper }}</td>
+                        <td>
+                            {% if payment.status == 'captured' %}
+                                <span class="badge badge-success">Captured</span>
+                            {% elif payment.status == 'failed' %}
+                                <span class="badge badge-danger">Failed</span>
+                            {% elif payment.status == 'authorized' %}
+                                <span class="badge badge-info">Authorized</span>
+                            {% elif payment.status == 'refunded' %}
+                                <span class="badge badge-warning">Refunded</span>
+                            {% else %}
+                                <span class="badge badge-gray">{{ payment.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-family:monospace;font-size:12px;color:var(--text-muted);">
+                            {{ payment.gateway_txn_id|slice:":16" }}
+                        </td>
+                        <td style="color:var(--text-muted);">
+                            {{ payment.created_at|date:"d M, H:i" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px;">
+                            No payments found for the selected filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:20px;">
+            {% if page > 1 %}
+                <a href="?page={{ page|add:'-1' }}" class="btn btn-outline">← Prev</a>
+            {% endif %}
+            <span style="padding:8px 16px;font-size:13px;color:var(--text-muted);">
+                Page {{ page }} of {{ total_pages }}
+            </span>
+            {% if page < total_pages %}
+                <a href="?page={{ page|add:'1' }}" class="btn btn-outline">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Payment {{ payment.id|slice:":8" }} — PayZap{% endblock %}
+{% block nav_payments %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="/dashboard/payments/" style="color:var(--text-muted);text-decoration:none;font-size:14px;">
+        ← Back to Payments
+    </a>
+    <h1 class="page-title" style="margin-top:8px;">
+        Payment
+        <span style="font-family:monospace;font-size:18px;">{{ payment.id }}</span>
+    </h1>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:24px;">
+
+    <!-- Left: Details -->
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Payment Details</span>
+                {% if payment.status == 'captured' %}
+                    <span class="badge badge-success">Captured</span>
+                {% elif payment.status == 'failed' %}
+                    <span class="badge badge-danger">Failed</span>
+                {% elif payment.status == 'authorized' %}
+                    <span class="badge badge-info">Authorized</span>
+                {% else %}
+                    <span class="badge badge-gray">{{ payment.status|title }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <table>
+                    <tr><td style="color:var(--text-muted);width:180px;">Amount</td>
+                        <td><strong style="font-size:20px;">₹{{ payment.amount_rupees }}</strong></td></tr>
+                    <tr><td style="color:var(--text-muted);">Method</td>
+                        <td>{{ payment.method|upper }}</td></tr>
+                    <tr><td style="color:var(--text-muted);">Order ID</td>
+                        <td style="font-family:monospace;">{{ payment.order_id }}</td></tr>
+                    <tr><td style="color:var(--text-muted);">Gateway TXN</td>
+                        <td style="font-family:monospace;">{{ payment.gateway_txn_id|default:"—" }}</td></tr>
+                    {% if payment.card_last4 %}
+                    <tr><td style="color:var(--text-muted);">Card</td>
+                        <td>{{ payment.card_network|upper }} ···· {{ payment.card_last4 }}</td></tr>
+                    {% endif %}
+                    {% if payment.bank %}
+                    <tr><td style="color:var(--text-muted);">Bank</td>
+                        <td>{{ payment.bank }}</td></tr>
+                    {% endif %}
+                    {% if payment.failure_reason %}
+                    <tr><td style="color:var(--text-muted);">Failure Reason</td>
+                        <td style="color:var(--danger);">{{ payment.failure_reason }}</td></tr>
+                    {% endif %}
+                    <tr><td style="color:var(--text-muted);">Created</td>
+                        <td>{{ payment.created_at|date:"d M Y, H:i:s" }}</td></tr>
+                    {% if payment.captured_at %}
+                    <tr><td style="color:var(--text-muted);">Captured</td>
+                        <td>{{ payment.captured_at|date:"d M Y, H:i:s" }}</td></tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Timeline</span>
+            </div>
+            <div class="card-body">
+                <div style="position:relative;padding-left:24px;">
+                    <div style="position:absolute;left:7px;top:8px;bottom:8px;
+                                width:2px;background:var(--border);"></div>
+
+                    <div style="position:relative;margin-bottom:20px;">
+                        <div style="position:absolute;left:-20px;top:4px;width:10px;height:10px;
+                                    border-radius:50%;background:var(--primary);"></div>
+                        <div style="font-size:13px;font-weight:600;">Payment Created</div>
+                        <div style="font-size:12px;color:var(--text-muted);">
+                            {{ payment.created_at|date:"d M Y, H:i:s" }}
+                        </div>
+                    </div>
+
+                    {% if payment.status != 'created' %}
+                    <div style="position:relative;margin-bottom:20px;">
+                        <div style="position:absolute;left:-20px;top:4px;width:10px;height:10px;
+                                    border-radius:50%;background:
+                                    {% if payment.status == 'failed' %}var(--danger)
+                                    {% else %}var(--success){% endif %};"></div>
+                        <div style="font-size:13px;font-weight:600;">
+                            {{ payment.status|title }}
+                        </div>
+                        <div style="font-size:12px;color:var(--text-muted);">
+                            {% if payment.captured_at %}{{ payment.captured_at|date:"d M Y, H:i:s" }}
+                            {% elif payment.failed_at %}{{ payment.failed_at|date:"d M Y, H:i:s" }}
+                            {% else %}—{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Actions -->
+    <div>
+        {% if payment.status == 'authorized' %}
+        <div class="card">
+            <div class="card-header"><span class="card-title">Actions</span></div>
+            <div class="card-body">
+                <form method="post" action="/dashboard/payments/{{ payment.id }}/capture/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" style="width:100%;">
+                        Capture Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">Raw Response</span></div>
+            <div class="card-body">
+                <pre style="font-size:11px;color:var(--text-muted);white-space:pre-wrap;
+                            word-break:break-all;">{{ gateway_response }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

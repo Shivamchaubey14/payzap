@@ -1,0 +1,128 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Dashboard — PayZap{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Welcome back, {{ merchant.business_name }}</p>
+</div>
+
+<!-- Stat Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Today's GMV</div>
+        <div class="stat-value">₹{{ today_gmv|floatformat:2 }}</div>
+        <div class="stat-sub">Gross Merchandise Value</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Success Rate</div>
+        <div class="stat-value {% if success_rate >= 95 %}stat-up{% else %}stat-down{% endif %}">
+            {{ success_rate|floatformat:1 }}%
+        </div>
+        <div class="stat-sub">Today's payment success</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value">{{ total_transactions }}</div>
+        <div class="stat-sub">{{ failed_transactions }} failed today</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Settlement Due</div>
+        <div class="stat-value">₹{{ settlement_due|floatformat:2 }}</div>
+        <div class="stat-sub">Next payout: T+1</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Revenue — Last 7 Days</span>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Payment Methods</span>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="methodChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Payments -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Recent Payments</span>
+        <a href="/dashboard/payments/" class="btn btn-outline">View All</a>
+    </div>
+    <div class="card-body">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in recent_payments %}
+                    <tr>
+                        <td>
+                            <a href="/dashboard/payments/{{ payment.id }}/"
+                               style="color:var(--primary);text-decoration:none;font-family:monospace;">
+                                {{ payment.id|slice:":8" }}...
+                            </a>
+                        </td>
+                        <td><strong>₹{{ payment.amount_rupees }}</strong></td>
+                        <td>{{ payment.method|upper }}</td>
+                        <td>
+                            {% if payment.status == 'captured' %}
+                                <span class="badge badge-success">Captured</span>
+                            {% elif payment.status == 'failed' %}
+                                <span class="badge badge-danger">Failed</span>
+                            {% elif payment.status == 'authorized' %}
+                                <span class="badge badge-info">Authorized</span>
+                            {% else %}
+                                <span class="badge badge-gray">{{ payment.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="color:var(--text-muted);">{{ payment.created_at|timesince }} ago</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">
+                            No payments yet. Start by creating an order via the API.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    initRevenueChart(
+        {{ chart_labels|safe }},
+        {{ chart_data|safe }}
+    );
+    initMethodChart(
+        {{ method_labels|safe }},
+        {{ method_data|safe }}
+    );
+</script>
+{% endblock %}

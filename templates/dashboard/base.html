@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PayZap Dashboard{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">PayZap</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard/" class="nav-item {% block nav_home %}{% endblock %}">
+                <span class="nav-icon">📊</span> Dashboard
+            </a>
+            <a href="/dashboard/payments/" class="nav-item {% block nav_payments %}{% endblock %}">
+                <span class="nav-icon">💳</span> Payments
+            </a>
+            <a href="/dashboard/orders/" class="nav-item {% block nav_orders %}{% endblock %}">
+                <span class="nav-icon">📦</span> Orders
+            </a>
+            <a href="/dashboard/settlements/" class="nav-item {% block nav_settlements %}{% endblock %}">
+                <span class="nav-icon">🏦</span> Settlements
+            </a>
+            <a href="/dashboard/webhooks/" class="nav-item {% block nav_webhooks %}{% endblock %}">
+                <span class="nav-icon">🔔</span> Webhooks
+            </a>
+            <a href="/dashboard/api-keys/" class="nav-item {% block nav_apikeys %}{% endblock %}">
+                <span class="nav-icon">🔑</span> API Keys
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="merchant-info">
+                <span class="merchant-name">{{ merchant.business_name }}</span>
+                <span class="merchant-mode {% if merchant.is_live %}live{% else %}test{% endif %}">
+                    {% if merchant.is_live %}● LIVE{% else %}● TEST{% endif %}
+                </span>
+            </div>
+            <a href="/dashboard/logout/" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="mobile-logo">⚡ PayZap</span>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
