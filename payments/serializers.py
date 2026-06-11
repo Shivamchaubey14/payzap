@@ -1,5 +1,6 @@
 import uuid
 from rest_framework import serializers
+from payments.models import PaymentLink, VirtualAccount
 from payments.models import Order, Payment
 from payments.models import Refund
 
@@ -80,3 +81,47 @@ class RefundSerializer(serializers.ModelSerializer):
 
     def get_amount_in_rupees(self, obj):
         return obj.amount / 100
+    
+
+
+class PaymentLinkSerializer(serializers.ModelSerializer):
+    amount_in_rupees = serializers.SerializerMethodField()
+    checkout_url     = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = PaymentLink
+        fields = [
+            'id', 'slug', 'amount', 'amount_in_rupees', 'currency',
+            'description', 'status', 'max_uses', 'use_count',
+            'expires_at', 'notes', 'checkout_url', 'created_at',
+        ]
+
+    def get_amount_in_rupees(self, obj):
+        return obj.amount / 100 if obj.amount else None
+
+    def get_checkout_url(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(f'/pay/{obj.slug}/')
+        return f'/pay/{obj.slug}/'
+
+
+class VirtualAccountSerializer(serializers.ModelSerializer):
+    amount_expected_rupees = serializers.SerializerMethodField()
+    amount_paid_rupees     = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = VirtualAccount
+        fields = [
+            'id', 'name', 'description', 'status',
+            'virtual_upi_id', 'virtual_account_number', 'virtual_ifsc',
+            'amount_expected', 'amount_expected_rupees',
+            'amount_paid', 'amount_paid_rupees',
+            'close_by', 'closed_at', 'notes', 'created_at',
+        ]
+
+    def get_amount_expected_rupees(self, obj):
+        return obj.amount_expected / 100 if obj.amount_expected else None
+
+    def get_amount_paid_rupees(self, obj):
+        return obj.amount_paid / 100

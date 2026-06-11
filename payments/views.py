@@ -1,6 +1,7 @@
 from django.utils import timezone
 from datetime import timedelta
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from monitoring.metrics import payment_created_total
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -11,6 +12,12 @@ from payments.serializers import OrderCreateSerializer, OrderResponseSerializer,
 from merchants.authentication import APIKeyAuthentication
 from payments.services import PaymentService
 from payments.serializers import PaymentResponseSerializer
+from payments.models import PaymentLink, VirtualAccount
+from payments.payment_link_service import PaymentLinkService
+from payments.virtual_account_service import VirtualAccountService
+from payments.serializers import PaymentLinkSerializer, VirtualAccountSerializer
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 
 class OrderCreateView(APIView):
@@ -340,3 +347,164 @@ class RefundDetailView(APIView):
             return Response({'error': 'Refund not found.'}, status=404)
 
         return Response(RefundSerializer(refund).data)
+
+
+
+class PaymentLinkCreateView(APIView):
+    """POST /v1/payment_links/ — create a shareable payment link"""
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        service = PaymentLinkService()
+        try:
+            link = service.create_link(request.user, request.data)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+        return Response(
+            PaymentLinkSerializer(link, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class PaymentLinkListView(APIView):
+    """GET /v1/payment_links/ — list merchant's payment links"""
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        links = PaymentLink.objects.filter(
+            merchant=request.user
+        ).order_by('-created_at')
+        return Response({
+            'count': links.count(),
+            'items': PaymentLinkSerializer(
+                links, many=True, context={'request': request}
+            ).data,
+        })
+
+
+class PaymentLinkDetailView(APIView):
+    """GET /v1/payment_links/{id}/ — fetch a specific link"""
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, link_id):
+        try:
+            link = PaymentLink.objects.get(id=link_id, merchant=request.user)
+        except PaymentLink.DoesNotExist:
+            return Response({'error': 'Payment link not found.'}, status=404)
+        return Response(PaymentLinkSerializer(link, context={'request': request}).data)
+
+    def delete(self, request, link_id):
+        try:
+            link = PaymentLink.objects.get(id=link_id, merchant=request.user)
+        except PaymentLink.DoesNotExist:
+            return Response({'error': 'Payment link not found.'}, status=404)
+        service = PaymentLinkService()
+        service.disable_link(link, request.user)
+        return Response({'status': 'disabled'})
+
+
+class PaymentLinkCheckoutView(APIView):
+    """
+    GET /pay/{slug}/ — public hosted checkout page for a payment link.
+    No auth required — this is what customers open.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, slug):
+        service = PaymentLinkService()
+        try:
+            link = service.get_link(slug)
+        except ValueError:
+            return Response({'error': 'Payment link not found or expired.'}, status=404)
+
+        if not link.is_usable:
+            return Response({'error': 'This payment link is no longer active.'}, status=410)
+
+        return Response({
+            'slug':        link.slug,
+            'amount':      link.amount,
+            'currency':    link.currency,
+            'description': link.description,
+            'merchant':    link.merchant.business_name,
+            'expires_at':  link.expires_at,
+        })
+
+
+class VirtualAccountCreateView(APIView):
+    """POST /v1/virtual_accounts/ — create a virtual UPI/NEFT collector"""
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        service = VirtualAccountService()
+        try:
+            va = service.create_virtual_account(request.user, request.data)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+        return Response(
+            VirtualAccountSerializer(va).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class VirtualAccountDetailView(APIView):
+    """GET /v1/virtual_accounts/{id}/ — fetch VA details"""
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, va_id):
+        try:
+            va = VirtualAccount.objects.get(id=va_id, merchant=request.user)
+        except VirtualAccount.DoesNotExist:
+            return Response({'error': 'Virtual account not found.'}, status=404)
+        return Response(VirtualAccountSerializer(va).data)
+
+    def delete(self, request, va_id):
+        try:
+            va = VirtualAccount.objects.get(id=va_id, merchant=request.user)
+        except VirtualAccount.DoesNotExist:
+            return Response({'error': 'Virtual account not found.'}, status=404)
+        service = VirtualAccountService()
+        try:
+            va = service.close_account(va, request.user)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+        return Response(VirtualAccountSerializer(va).data)
+
+
+class VirtualAccountCreditView(APIView):
+    """
+    POST /v1/virtual_accounts/{id}/credit/ — simulate incoming bank credit.
+    In production this is called by bank callback, not directly.
+    """
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, va_id):
+        try:
+            va = VirtualAccount.objects.get(id=va_id, merchant=request.user)
+        except VirtualAccount.DoesNotExist:
+            return Response({'error': 'Virtual account not found.'}, status=404)
+
+        amount = request.data.get('amount')
+        if not amount:
+            return Response({'error': 'amount is required.'}, status=400)
+
+        service = VirtualAccountService()
+        try:
+            payment = service.record_credit(
+                va=va,
+                amount=int(amount),
+                payment_method=request.data.get('method', 'upi'),
+            )
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
+
+        return Response(
+            PaymentResponseSerializer(payment).data,
+            status=status.HTTP_201_CREATED,
+        )

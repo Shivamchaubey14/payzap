@@ -1,9 +1,11 @@
 from django.urls import path
 from payments.views import (
     OrderCreateView, OrderDetailView, OrderListView,
-    PaymentCreateView, PaymentDetailView, PaymentCaptureView,BankListView, RefundCreateView, RefundDetailView
+    PaymentCreateView, PaymentDetailView, PaymentCaptureView,
+    RefundCreateView, RefundDetailView,
+    PaymentLinkCreateView, PaymentLinkListView, PaymentLinkDetailView,
+    VirtualAccountCreateView, VirtualAccountDetailView, VirtualAccountCreditView,BankListView
 )
-
 urlpatterns = [
     path('banks/', BankListView.as_view(), name='bank-list'),
     path('orders/', OrderListView.as_view(), name='order-list'),
@@ -14,4 +16,10 @@ urlpatterns = [
     path('payments/<uuid:payment_id>/capture/', PaymentCaptureView.as_view(), name='payment-capture'),
     path('refunds/', RefundCreateView.as_view(), name='refund-create'),
     path('refunds/<uuid:refund_id>/', RefundDetailView.as_view(), name='refund-detail'),
+    path('payment_links/', PaymentLinkListView.as_view(), name='payment-link-list'),
+    path('payment_links/create/', PaymentLinkCreateView.as_view(), name='payment-link-create'),
+    path('payment_links/<uuid:link_id>/', PaymentLinkDetailView.as_view(), name='payment-link-detail'),
+    path('virtual_accounts/', VirtualAccountCreateView.as_view(), name='virtual-account-create'),
+    path('virtual_accounts/<uuid:va_id>/', VirtualAccountDetailView.as_view(), name='virtual-account-detail'),
+    path('virtual_accounts/<uuid:va_id>/credit/', VirtualAccountCreditView.as_view(), name='virtual-account-credit'),
 ]

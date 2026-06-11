@@ -1,4 +1,5 @@
 import uuid
+import secrets as _secrets
 from django.db import models
 from merchants.models import Merchant
 
@@ -171,3 +172,91 @@ class Refund(models.Model):
     @property
     def amount_in_rupees(self):
         return self.amount / 100
+
+class PaymentLink(models.Model):
+    STATUS_CHOICES = [
+        ('active',   'Active'),
+        ('expired',  'Expired'),
+        ('paid',     'Paid'),
+        ('disabled', 'Disabled'),
+    ]
+
+    id          = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    merchant    = models.ForeignKey(Merchant, on_delete=models.PROTECT, related_name='payment_links')
+    slug        = models.CharField(max_length=32, unique=True, db_index=True)
+    amount      = models.PositiveIntegerField(null=True, blank=True)  # None = open amount
+    currency    = models.CharField(max_length=3, default='INR')
+    description = models.CharField(max_length=255, blank=True)
+    status      = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    max_uses    = models.PositiveIntegerField(null=True, blank=True)  # None = unlimited
+    use_count   = models.PositiveIntegerField(default=0)
+    expires_at  = models.DateTimeField(null=True, blank=True)
+    notes       = models.JSONField(default=dict, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'payment_links'
+        indexes  = [
+            models.Index(fields=['merchant', 'status']),
+            models.Index(fields=['slug']),
+        ]
+
+    def __str__(self):
+        amt = f'₹{self.amount/100:.2f}' if self.amount else 'open'
+        return f"PaymentLink {self.slug} — {amt} ({self.status})"
+
+    @property
+    def amount_in_rupees(self):
+        return self.amount / 100 if self.amount else None
+
+    @property
+    def is_usable(self):
+        from django.utils import timezone
+        if self.status != 'active':
+            return False
+        if self.expires_at and timezone.now() > self.expires_at:
+            return False
+        if self.max_uses and self.use_count >= self.max_uses:
+            return False
+        return True
+
+    @staticmethod
+    def generate_slug():
+        return _secrets.token_urlsafe(16)[:24]
+
+
+class VirtualAccount(models.Model):
+    STATUS_CHOICES = [
+        ('active',  'Active'),
+        ('closed',  'Closed'),
+    ]
+
+    id              = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    merchant        = models.ForeignKey(Merchant, on_delete=models.PROTECT, related_name='virtual_accounts')
+    name            = models.CharField(max_length=255)          # customer / purpose label
+    description     = models.CharField(max_length=500, blank=True)
+    status          = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    # Assigned virtual identifiers
+    virtual_upi_id  = models.CharField(max_length=100, unique=True)   # e.g. payzap.va.abc123@payzap
+    virtual_account_number = models.CharField(max_length=20, unique=True)
+    virtual_ifsc    = models.CharField(max_length=11, default='PAYZ0000001')
+    # Limits
+    amount_expected = models.PositiveIntegerField(null=True, blank=True)   # None = any amount
+    amount_paid     = models.PositiveIntegerField(default=0)
+    close_by        = models.DateTimeField(null=True, blank=True)
+    closed_at       = models.DateTimeField(null=True, blank=True)
+    notes           = models.JSONField(default=dict, blank=True)
+    created_at      = models.DateTimeField(auto_now_add=True)
+    updated_at      = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'virtual_accounts'
+        indexes  = [
+            models.Index(fields=['merchant', 'status']),
+            models.Index(fields=['virtual_upi_id']),
+            models.Index(fields=['virtual_account_number']),
+        ]
+
+    def __str__(self):
+        return f"VA {self.virtual_upi_id} — {self.name} ({self.status})"

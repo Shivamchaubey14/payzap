@@ -1,4 +1,5 @@
 import logging
+import time
 from django.db import transaction
 from django.utils import timezone
 from django.core.cache import cache
@@ -102,6 +103,7 @@ class PaymentService:
             result = self.gateway.capture(payment, capture_amount)
             with transaction.atomic():
                 payment_obj = Payment.objects.select_for_update().get(id=payment.id)
+                from monitoring.metrics import payment_captured_total, payment_failed_total
                 if result.success:
                     payment_obj.status = 'captured'
                     payment_obj.captured_at = timezone.now()
