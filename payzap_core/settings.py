@@ -3,6 +3,7 @@ PayZap - settings.py
 Day 1: Full configuration for MySQL + Redis + Celery
 """
 
+import os
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -139,9 +140,11 @@ SIMPLE_JWT = {
 # ── DRF Spectacular (API Docs) ────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
     'TITLE': 'PayZap API',
-    'DESCRIPTION': 'Payment Gateway Platform — Full API Documentation',
+    'DESCRIPTION': 'Payment Gateway API — test and live environments',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'PREPROCESSING_HOOKS': [],
+    'POSTPROCESSING_HOOKS': [],
 }
 
 # ── Password Validation ───────────────────────────────────────────────────────
@@ -293,3 +296,15 @@ LOGGING = {
         },
     },
 }
+
+# ── Security (production flags) ───────────────────────────────────────────────
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'

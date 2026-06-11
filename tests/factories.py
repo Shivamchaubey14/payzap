@@ -47,6 +47,7 @@ class OrderFactory(factory.django.DjangoModelFactory):
     currency = 'INR'
     status = 'created'
     receipt = factory.Sequence(lambda n: f'receipt_{n}')
+    idempotency_key = factory.Sequence(lambda n: f'idem_key_{n}')
 
 
 class PaymentFactory(factory.django.DjangoModelFactory):
