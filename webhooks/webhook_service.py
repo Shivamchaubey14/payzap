@@ -90,12 +90,16 @@ class WebhookService:
                 next_retry_at=None,
             )
             logger.info(f"Webhook {event.id} delivered to {endpoint.url}")
+            from monitoring.metrics import webhook_delivered_total
+            webhook_delivered_total.inc()
 
         else:
             if attempt_num >= MAX_ATTEMPTS:
                 new_status = 'dead_letter'
                 next_retry = None
                 logger.warning(f"Webhook {event.id} dead-lettered after {attempt_num} attempts")
+                from monitoring.metrics import webhook_dead_letter_total
+                webhook_dead_letter_total.inc()
             else:
                 new_status = 'failed'
                 delay = RETRY_DELAYS[attempt_num] if attempt_num < len(RETRY_DELAYS) else 86400

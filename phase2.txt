@@ -539,3 +539,30 @@ Invoke-WebRequest -Uri "http://localhost:8000/v1/payments/" `
   -Body '{"order_id": "2c2bf6bb-d5c9-4ef2-af13-66dd109233f2", "method": "card", "card_number": "4111111111111111"}'
 
 https://webhook.site/2c314a21-3b91-4b4e-abe0-cd1c4311a4fb
+
+
+# Create a payment link
+Invoke-WebRequest -Uri "http://localhost:8000/v1/payment_links/create/" `
+  -Method POST -ContentType "application/json" `
+  -Headers @{"X-Api-Key" = "rzp_test_kpJyPWio_oyI0lm0Y7_xQgeUXB3v8qfqvM5NGEGjuBn0"} `
+  -Body '{"amount": 50000, "currency": "INR", "description": "Invoice #001", "max_uses": 3}'
+
+
+# Create a virtual account
+Invoke-WebRequest -Uri "http://localhost:8000/v1/virtual_accounts/" `
+  -Method POST -ContentType "application/json" `
+  -Headers @{"X-Api-Key" = "rzp_test_kpJyPWio_oyI0lm0Y7_xQgeUXB3v8qfqvM5NGEGjuBn0"} `
+  -Body '{"name": "Client Collections", "amount_expected": 100000}'
+
+
+# Simulate bank credit — replace VA_ID with id from previous response
+Invoke-WebRequest -Uri "http://localhost:8000/v1/virtual_accounts/VA_ID/credit/" `
+  -Method POST -ContentType "application/json" `
+  -Headers @{"X-Api-Key" = "rzp_test_kpJyPWio_oyI0lm0Y7_xQgeUXB3v8qfqvM5NGEGjuBn0"} `
+  -Body '{"amount": 50000, "method": "upi"}'
+
+
+Invoke-WebRequest -Uri "http://localhost:8000/v1/virtual_accounts/1afc94d6-dc46-4955-a1d0-69830dfa33dd/credit/" `
+  -Method POST -ContentType "application/json" `
+  -Headers @{"X-Api-Key" = "rzp_test_kpJyPWio_oyI0lm0Y7_xQgeUXB3v8qfqvM5NGEGjuBn0"} `
+  -Body '{"amount": 50000, "method": "upi"}'

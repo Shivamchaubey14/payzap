@@ -8,6 +8,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
+    path('', include('django_prometheus.urls')),
     # Admin
     path('admin/', admin.site.urls),
 
@@ -20,10 +21,12 @@ urlpatterns = [
     path('v1/', include('merchants.urls')),
     path('v1/', include('merchants.kyc_urls')),
     path('v1/', include('payments.urls')),
+    path('pay/', include('payments.checkout_urls')),
     path('v1/', include('settlements.urls')),
     path('v1/', include('payouts.urls')),
     path('v1/', include('fraud.urls')),
     path('v1/', include('webhooks.urls')),
     path('dashboard/', include('merchants.dashboard_urls')),
     path('admin-panel/', include('admin_panel.urls')),
+    path('monitoring/', include('monitoring.urls')),
 ]

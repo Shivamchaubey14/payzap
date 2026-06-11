@@ -1,0 +1,42 @@
+{
+  "title":"PayZap Operations",
+  "panels": [
+    {
+      "title": "Payment Success Rate",
+      "type": "gauge",
+      "targets": [{
+        "expr": "rate(payzap_payment_captured_total[5m]) / rate(payzap_payment_created_total[5m]) * 100"
+      }],
+      "thresholds": {"steps": [
+        {"color": "red", "value": 0},
+        {"color": "yellow", "value": 90},
+        {"color": "green", "value": 95}
+      ]}
+    },
+    {
+      "title": "Payments Per Second",
+      "type": "graph",
+      "targets": [{"expr": "rate(payzap_payment_created_total[1m])"}]
+    },
+    {
+      "title": "API p99 Latency",
+      "type": "graph",
+      "targets": [{"expr": "histogram_quantile(0.99, rate(payzap_api_request_duration_seconds_bucket[5m]))"}]
+    },
+    {
+      "title": "Webhook Dead Letters",
+      "type": "stat",
+      "targets": [{"expr": "payzap_webhook_dead_letter_total"}]
+    },
+    {
+      "title": "Active Merchants",
+      "type": "stat",
+      "targets": [{"expr": "payzap_active_merchants_total"}]
+    },
+    {
+      "title": "Fraud Blocks",
+      "type": "graph",
+      "targets": [{"expr": "rate(payzap_fraud_blocked_total[5m])"}]
+    }
+  ]
+}

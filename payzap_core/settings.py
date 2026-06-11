@@ -3,6 +3,10 @@ PayZap - settings.py
 Day 1: Full configuration for MySQL + Redis + Celery
 """
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 from pathlib import Path
 from decouple import config
 
@@ -15,6 +19,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 
 # ── Apps ──────────────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
+    'django_prometheus',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,6 +40,7 @@ INSTALLED_APPS = [
     'payouts',
     'fraud',
     'admin_panel',
+    'monitoring',
 ]
 
 # ── Payment Gateway ───────────────────────────────────────────────────────────
@@ -43,6 +49,7 @@ RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
 
 # ── Middleware ────────────────────────────────────────────────────────────────
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'merchants.middleware.APIKeyRateLimitMiddleware',
     'payments.middleware.IdempotencyMiddleware',
@@ -52,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'payzap_core.urls'
@@ -208,3 +216,80 @@ FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8000')
 
 # Redis URL (for rate limit middleware)
 REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+
+
+# ── Sentry ────────────────────────────────────────────────────────────────────
+
+SENTRY_DSN = config('SENTRY_DSN', default='')
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+            CeleryIntegration(),
+            RedisIntegration(),
+        ],
+        traces_sample_rate=0.1,
+        send_default_pii=False,
+        environment=config('ENVIRONMENT', default='development'),
+    )
+
+# ── Structured JSON Logging ───────────────────────────────────────────────────
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': '%(asctime)s %(levelname)s %(name)s %(message)s',
+        },
+        'simple': {
+            'format': '%(levelname)s %(name)s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'json_file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'payzap.json.log',
+            'maxBytes': 10 * 1024 * 1024,  # 10MB
+            'backupCount': 5,
+            'formatter': 'json',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'payments': {
+            'handlers': ['console', 'json_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'webhooks': {
+            'handlers': ['console', 'json_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'settlements': {
+            'handlers': ['console', 'json_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'fraud': {
+            'handlers': ['console', 'json_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'merchants': {
+            'handlers': ['console', 'json_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
