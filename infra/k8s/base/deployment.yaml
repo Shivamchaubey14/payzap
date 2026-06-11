@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payzap-api
+  namespace: payzap
+  labels:
+    app: payzap-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: payzap-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: payzap-api
+    spec:
+      containers:
+        - name: payzap-api
+          image: payzap:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: payzap-secrets
+            - configMapRef:
+                name: payzap-config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /monitoring/health/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /monitoring/health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: logs
+              mountPath: /app/logs
+      volumes:
+        - name: logs
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payzap-celery-worker
+  namespace: payzap
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payzap-celery-worker
+  template:
+    metadata:
+      labels:
+        app: payzap-celery-worker
+    spec:
+      containers:
+        - name: celery-worker
+          image: payzap:latest
+          command: ["celery", "-A", "payzap_core", "worker",
+                    "-l", "info", "-Q", "default,payments,webhooks", "-c", "4"]
+          envFrom:
+            - secretRef:
+                name: payzap-secrets
+            - configMapRef:
+                name: payzap-config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payzap-celery-beat
+  namespace: payzap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payzap-celery-beat
+  template:
+    metadata:
+      labels:
+        app: payzap-celery-beat
+    spec:
+      containers:
+        - name: celery-beat
+          image: payzap:latest
+          command: ["celery", "-A", "payzap_core", "beat",
+                    "-l", "info", "--scheduler", "celery.beat:PersistentScheduler"]
+          envFrom:
+            - secretRef:
+                name: payzap-secrets
+            - configMapRef:
+                name: payzap-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

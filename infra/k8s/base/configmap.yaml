@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payzap-config
+  namespace: payzap
+data:
+  DJANGO_SETTINGS_MODULE: payzap_core.settings
+  DEBUG: "False"
+  ENVIRONMENT: production
+  ALLOWED_HOSTS: "api.payzap.com,dashboard.payzap.com"
+  CELERY_BROKER_URL: redis://redis-master:6379/0
+  REDIS_URL: redis://redis-master:6379/0

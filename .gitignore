@@ -10,3 +10,8 @@ media/
 .DS_Store
 Thumbs.db
 phase2.txt
+infra/k8s/base/secrets.yaml
+
+.env.prod
+
+infra/nginx/certs/
