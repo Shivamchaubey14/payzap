@@ -1,10 +1,11 @@
 from django.urls import path
+
 from merchants.dashboard_views import (
     dashboard_home,
-    payments_list,
-    payment_detail,
     dashboard_login,
     dashboard_logout,
+    payment_detail,
+    payments_list,
     sandbox,
 )
 

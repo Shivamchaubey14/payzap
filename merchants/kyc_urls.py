@@ -1,10 +1,11 @@
 from django.urls import path
+
 from merchants.kyc_views import (
-    KYCUploadURLView,
+    KYCAdminReviewView,
     KYCStatusView,
     KYCSubmitView,
-    KYCAdminReviewView,
     KYCUpdateBankView,
+    KYCUploadURLView,
 )
 
 urlpatterns = [

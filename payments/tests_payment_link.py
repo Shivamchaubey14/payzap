@@ -1,13 +1,15 @@
 import uuid
+from datetime import timedelta
+
+from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
-from datetime import timedelta
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 from payments.models import Order, Payment, PaymentLink, VirtualAccount
 from payments.payment_link_service import PaymentLinkService
 from payments.virtual_account_service import VirtualAccountService
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -127,7 +129,7 @@ class PaymentLinkModelTest(TestCase):
         PaymentLink.objects.create(
             merchant=self.merchant, slug=slug, amount=50000
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             PaymentLink.objects.create(
                 merchant=self.merchant, slug=slug, amount=50000
             )
@@ -397,7 +399,7 @@ class VirtualAccountModelTest(TestCase):
             virtual_upi_id='payzap.va.dup@payzap',
             virtual_account_number='PAYZDUP001',
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             VirtualAccount.objects.create(
                 merchant=self.merchant,
                 name='VA 2',

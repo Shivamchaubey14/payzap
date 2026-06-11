@@ -1,7 +1,8 @@
 import logging
+
 from celery import shared_task
-from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import send_mail
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ def send_payment_confirmation_email(self, payment_id: str):
 
     except Exception as exc:
         logger.error(f"Failed to send confirmation email for {payment_id}: {exc}")
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc
 
 
 @shared_task(bind=True, max_retries=24, name='payments.poll_payment_status')
@@ -56,9 +57,10 @@ def poll_payment_status(self, payment_id: str):
     Gives up after 24 retries (= ~12 minutes total).
     """
     try:
+        from django.db import transaction
+
         from payments.models import Payment
         from payments.processors.mock_gateway import MockBankGateway
-        from django.db import transaction
 
         payment = Payment.objects.select_for_update().get(id=payment_id)
 

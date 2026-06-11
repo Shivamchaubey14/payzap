@@ -1,7 +1,9 @@
-import uuid
-import re
 import logging
+import re
+import uuid
+
 from django.utils import timezone
+
 from payouts.models import Payout
 
 logger = logging.getLogger(__name__)
@@ -25,7 +27,6 @@ def _check_daily_limit(merchant, amount: int):
     from django.db.models import Sum
     from django.utils import timezone as tz
     now = tz.localtime(tz.now())
-    today = now.date()
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_today = Payout.objects.filter(
         merchant=merchant,

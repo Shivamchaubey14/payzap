@@ -1,5 +1,6 @@
 from django.urls import path
-from payouts.views import PayoutCreateView, PayoutBulkView, PayoutDetailView, PayoutListView
+
+from payouts.views import PayoutBulkView, PayoutCreateView, PayoutDetailView, PayoutListView
 
 urlpatterns = [
     path('payouts/', PayoutListView.as_view(), name='payout-list'),

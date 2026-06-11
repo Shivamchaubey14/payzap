@@ -1,7 +1,8 @@
 import logging
+
 from celery import shared_task
-from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def send_kyc_submitted_email(self, merchant_id: str):
         )
         logger.info(f"KYC submitted email sent to {merchant.email}")
     except Exception as exc:
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc
 
 
 @shared_task(bind=True, max_retries=3, name='merchants.kyc.approved')
@@ -64,7 +65,7 @@ def send_kyc_approved_email(self, merchant_id: str):
         )
         logger.info(f"KYC approval email sent to {merchant.email}")
     except Exception as exc:
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc
 
 
 @shared_task(bind=True, max_retries=3, name='merchants.kyc.rejected')
@@ -96,4 +97,4 @@ def send_kyc_rejected_email(self, merchant_id: str, reason: str):
         )
         logger.info(f"KYC rejection email sent to {merchant.email}")
     except Exception as exc:
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc

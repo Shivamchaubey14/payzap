@@ -1,7 +1,8 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 
 
 class RegistrationViewTest(TestCase):

@@ -1,6 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
-from tests.factories import MerchantFactory, APIKeyFactory, OrderFactory, PaymentFactory
+
+from tests.factories import APIKeyFactory, MerchantFactory, OrderFactory, PaymentFactory
 
 
 @pytest.mark.django_db
@@ -88,8 +89,9 @@ class TestOwnershipIsolation:
         assert resp.status_code in [403, 404]
 
     def test_merchant_cannot_access_other_merchant_settlement(self):
-        from settlements.models import Settlement
         from django.utils import timezone
+
+        from settlements.models import Settlement
         Settlement.objects.create(
             merchant=self.merchant_b,
             amount=98000,
@@ -190,12 +192,12 @@ class TestRefundReconciliationSecurity:
 
     def test_100_payments_settlement_reconciliation(self):
         from unittest.mock import patch
+
         from settlements.models import Settlement
         from settlements.tasks import process_daily_settlements
-        from django.db.models import Sum
 
         total_captured = 0
-        for i in range(10):
+        for _i in range(10):
             order = OrderFactory(merchant=self.merchant, amount=100000)
             PaymentFactory(
                 order=order,

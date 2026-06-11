@@ -1,9 +1,11 @@
 import base64
 import hashlib
+
 from django.utils import timezone
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from merchants.models import APIKey, Merchant
+
+from merchants.models import APIKey
 
 
 class APIKeyAuthentication(BaseAuthentication):
@@ -72,7 +74,7 @@ class APIKeyAuthentication(BaseAuthentication):
                 is_active=True,
             )
         except APIKey.DoesNotExist:
-            raise AuthenticationFailed('Invalid API key.')
+            raise AuthenticationFailed('Invalid API key.') from None
 
         # Verify hash
         key_hash = hashlib.pbkdf2_hmac(

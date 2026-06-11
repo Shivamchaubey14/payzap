@@ -1,4 +1,5 @@
 from django.urls import path
+
 from settlements.views import SettlementListView
 
 urlpatterns = [

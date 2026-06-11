@@ -1,6 +1,7 @@
-import uuid
-import secrets
 import hashlib
+import secrets
+import uuid
+
 from django.db import models
 
 
@@ -68,7 +69,7 @@ class APIKey(models.Model):
 
     def __str__(self):
         return f"{self.key_prefix} ({'live' if self.is_live else 'test'})"
-    
+
     @property
     def display_key(self):
         return f"{self.key_prefix}{'*' * 20}"
@@ -81,7 +82,7 @@ class APIKey(models.Model):
         full_key = f"{prefix}_{raw[8:]}"
         key_hash = hashlib.pbkdf2_hmac('sha256', full_key.encode(), b'payzap_salt', 100000).hex()
         return full_key, prefix, key_hash
-    
+
 class KYCDocument(models.Model):
     DOCUMENT_TYPES = [
         ('aadhar',            'Aadhar Card'),

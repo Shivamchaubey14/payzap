@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
-from tests.factories import MerchantFactory, APIKeyFactory, OrderFactory, PaymentFactory
-from payments.models import Payment, Refund
+
+from tests.factories import APIKeyFactory, MerchantFactory, OrderFactory, PaymentFactory
 
 
 @pytest.mark.django_db

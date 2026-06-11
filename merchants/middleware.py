@@ -1,4 +1,3 @@
-import time
 import redis
 from django.conf import settings
 from django.http import JsonResponse

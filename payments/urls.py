@@ -1,11 +1,23 @@
 from django.urls import path
+
 from payments.views import (
-    OrderCreateView, OrderDetailView, OrderListView,
-    PaymentCreateView, PaymentDetailView, PaymentCaptureView,
-    RefundCreateView, RefundDetailView,
-    PaymentLinkCreateView, PaymentLinkListView, PaymentLinkDetailView,
-    VirtualAccountCreateView, VirtualAccountDetailView, VirtualAccountCreditView,BankListView
+    BankListView,
+    OrderCreateView,
+    OrderDetailView,
+    OrderListView,
+    PaymentCaptureView,
+    PaymentCreateView,
+    PaymentDetailView,
+    PaymentLinkCreateView,
+    PaymentLinkDetailView,
+    PaymentLinkListView,
+    RefundCreateView,
+    RefundDetailView,
+    VirtualAccountCreateView,
+    VirtualAccountCreditView,
+    VirtualAccountDetailView,
 )
+
 urlpatterns = [
     path('banks/', BankListView.as_view(), name='bank-list'),
     path('orders/', OrderListView.as_view(), name='order-list'),

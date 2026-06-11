@@ -1,9 +1,10 @@
+import datetime
+
+import jwt
 from celery import shared_task
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-import datetime
 
 
 @shared_task(bind=True, max_retries=3)
@@ -37,7 +38,7 @@ def send_verification_email(self, user_id, merchant_id):
             ''',
         )
     except Exception as exc:
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc
 
 
 @shared_task(bind=True, max_retries=3)
@@ -53,4 +54,4 @@ def send_welcome_email(self, merchant_id):
             recipient_list=[merchant.email],
         )
     except Exception as exc:
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc

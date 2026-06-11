@@ -1,7 +1,9 @@
 import uuid
+
 from django.test import TestCase
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 from payments.models import Order, Payment
 
 
@@ -104,8 +106,8 @@ class PaymentModelTest(TestCase):
         )
         self.assertIn('card', str(payment))
         self.assertIn('₹', str(payment))
-        
-        
+
+
 class OrderAPITest(TestCase):
 
     def setUp(self):

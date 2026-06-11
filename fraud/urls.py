@@ -1,4 +1,5 @@
 from django.urls import path
+
 from fraud.views import BINBlacklistView, FraudSignalListView
 
 urlpatterns = [

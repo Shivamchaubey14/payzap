@@ -1,10 +1,12 @@
-import uuid
-import hmac
 import hashlib
+import hmac
 import logging
+import uuid
+
 from django.db import transaction
 from django.utils import timezone
-from payments.models import Order, Payment, Bank
+
+from payments.models import Bank, Order, Payment
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +66,7 @@ class NetBankingService:
     def _generate_redirect_url(self, payment, bank) -> str:
         """Generate HMAC-signed redirect URL to bank login page."""
         txn_ref = uuid.uuid4().hex[:16]
-        callback = f"https://api.payzap.test/v1/payments/netbanking/callback/"
+        callback = "https://api.payzap.test/v1/payments/netbanking/callback/"
         data = f"{payment.id}:{payment.amount}:{txn_ref}"
         sig = hmac.new(self.SECRET, data.encode(), hashlib.sha256).hexdigest()
         return (
@@ -86,7 +88,7 @@ class NetBankingService:
         try:
             payment = Payment.objects.select_related('order').get(id=payment_id)
         except Payment.DoesNotExist:
-            raise ValueError(f'Payment {payment_id} not found.')
+            raise ValueError(f'Payment {payment_id} not found.') from None
 
         # Verify signature
         data = f"{payment_id}:{payment.amount}:{txn_ref}"

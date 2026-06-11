@@ -1,9 +1,11 @@
-import boto3
 import logging
 import uuid
+
+import boto3
 from django.conf import settings
 from django.utils import timezone
-from merchants.models import Merchant, KYCDocument
+
+from merchants.models import KYCDocument, Merchant
 
 logger = logging.getLogger(__name__)
 

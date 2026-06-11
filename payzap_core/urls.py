@@ -4,8 +4,8 @@ Place this file inside payzap_core/ folder (replaces the existing urls.py)
 """
 
 from django.contrib import admin
-from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
     path('', include('django_prometheus.urls')),

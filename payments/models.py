@@ -1,6 +1,8 @@
-import uuid
 import secrets as _secrets
+import uuid
+
 from django.db import models
+
 from merchants.models import Merchant
 
 
@@ -107,7 +109,7 @@ class Payment(models.Model):
     upi_vpa        = models.CharField(max_length=100, blank=True)
     upi_intent_url = models.CharField(max_length=500, blank=True)
     upi_qr_code    = models.TextField(blank=True)
-    
+
     # Net banking fields
     bank_code        = models.CharField(max_length=20, blank=True)
     bank_name        = models.CharField(max_length=100, blank=True)
@@ -135,8 +137,8 @@ class Payment(models.Model):
     @property
     def refundable_amount(self):
         return self.amount - self.amount_refunded
-    
-    
+
+
 class Refund(models.Model):
     STATUS_CHOICES = [
         ('initiated', 'Initiated'),

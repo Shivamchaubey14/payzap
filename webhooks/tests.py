@@ -1,12 +1,13 @@
-import json
-import uuid
-import hmac
 import hashlib
-from unittest.mock import patch, MagicMock
+import hmac
+import uuid
+from unittest.mock import MagicMock, patch
+
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 from webhooks.models import WebhookEndpoint, WebhookEvent
 from webhooks.webhook_service import WebhookService
 

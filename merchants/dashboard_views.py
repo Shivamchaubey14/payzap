@@ -1,12 +1,14 @@
 import json
 from datetime import timedelta
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Sum
+from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.db.models import Sum, Count, Q
-from payments.models import Payment, Order
+
 from merchants.models import Merchant
+from payments.models import Payment
 
 
 def get_merchant(request):
@@ -146,6 +148,7 @@ def payment_detail(request, payment_id):
     try:
         payment = Payment.objects.get(id=payment_id, order__merchant=merchant)
     except Payment.DoesNotExist:
+        raise ValueError('Payment not found.') from None
         return redirect('/dashboard/payments/')
 
     return render(request, 'dashboard/payment_detail.html', {
@@ -157,7 +160,6 @@ def payment_detail(request, payment_id):
 
 def dashboard_login(request):
     from django.contrib.auth import authenticate, login
-    from django.contrib.auth.forms import AuthenticationForm
 
     if request.user.is_authenticated:
         return redirect('/dashboard/')

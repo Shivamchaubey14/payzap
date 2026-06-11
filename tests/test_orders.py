@@ -1,7 +1,7 @@
 import pytest
-from django.urls import reverse
 from rest_framework.test import APIClient
-from tests.factories import MerchantFactory, APIKeyFactory
+
+from tests.factories import APIKeyFactory, MerchantFactory
 
 
 @pytest.mark.django_db
@@ -60,7 +60,6 @@ class TestOrderCreation:
         )
         assert resp1.status_code == 201
         assert resp2.status_code == 201
-        import json
         assert resp1.json()['id'] == resp2.json()['id']
 
     def test_get_order_success(self):

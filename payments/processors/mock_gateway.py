@@ -1,6 +1,7 @@
-import uuid
 import random
 import time
+import uuid
+
 from payments.processors.base import PaymentProcessor, PaymentResult
 
 

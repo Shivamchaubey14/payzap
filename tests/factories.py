@@ -1,6 +1,7 @@
 import factory
 import factory.django
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 from payments.models import Order, Payment
 
 

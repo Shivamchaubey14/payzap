@@ -1,11 +1,13 @@
 import logging
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from merchants.authentication import APIKeyAuthentication
-from merchants.models import Merchant, KYCDocument
 from merchants.kyc_service import KYCService
+from merchants.models import KYCDocument, Merchant
 
 logger = logging.getLogger(__name__)
 

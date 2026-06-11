@@ -1,8 +1,9 @@
 import logging
-from django.utils import timezone
+
 from django.db import transaction
-from payments.models import PaymentLink, Order
+
 from merchants.models import Merchant
+from payments.models import Order, PaymentLink
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class PaymentLinkService:
         try:
             return PaymentLink.objects.select_related('merchant').get(slug=slug)
         except PaymentLink.DoesNotExist:
-            raise ValueError(f'Payment link not found.')
+            raise ValueError('Payment link not found.') from None
 
     @transaction.atomic
     def record_payment(self, link: PaymentLink, amount: int) -> Order:

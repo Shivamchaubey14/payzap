@@ -1,10 +1,11 @@
 import uuid
+
 from django.test import TestCase
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 from payments.models import Order, Payment, Refund
 from payments.refund_service import RefundService
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers

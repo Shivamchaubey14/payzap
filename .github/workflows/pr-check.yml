@@ -1,0 +1,68 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  pr-check:
+    name: Quick PR Validation
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: payzap_test
+          POSTGRES_USER: payzap
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt ruff bandit
+
+      - name: Lint
+        run: ruff check . --output-format=github
+
+      - name: Security check
+        run: bandit -r . -x ./venv,./tests -ll
+
+      - name: Migrate + test
+        env:
+          SECRET_KEY: ci-test-secret-key
+          DEBUG: "True"
+          DB_NAME: payzap_test
+          DB_USER: payzap
+          DB_PASSWORD: test_password
+          DB_HOST: localhost
+          DB_PORT: 5432
+          REDIS_URL: redis://localhost:6379/0
+          CELERY_BROKER_URL: redis://localhost:6379/0
+        run: |
+          python manage.py migrate --noinput
+          pytest tests/ -v --cov=. --cov-fail-under=80 -p no:warnings

@@ -1,14 +1,16 @@
+from datetime import timedelta
+
 import redis
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.utils import timezone
-from django.db.models import Sum, Count
-from datetime import timedelta
-from django.conf import settings
-from payments.models import Payment
+
 from merchants.models import Merchant
-from webhooks.models import WebhookEvent
+from payments.models import Payment
 from settlements.models import Settlement
+from webhooks.models import WebhookEvent
 
 
 @staff_member_required
@@ -86,7 +88,6 @@ def system_stats(request):
     Returns live platform statistics.
     """
     today = timezone.now().date()
-    one_hour_ago = timezone.now() - timedelta(hours=1)
 
     today_payments = Payment.objects.filter(created_at__date=today)
     total = today_payments.count()

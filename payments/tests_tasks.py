@@ -1,11 +1,13 @@
-from unittest.mock import patch, MagicMock
+import uuid
+from datetime import timedelta
+from unittest.mock import patch
+
 from django.test import TestCase
+from django.utils import timezone
+
 from merchants.models import Merchant
 from payments.models import Order, Payment
 from payments.tasks import expire_stale_orders, send_payment_confirmation_email
-import uuid
-from django.utils import timezone
-from datetime import timedelta
 
 
 class ExpireStaleOrdersTest(TestCase):

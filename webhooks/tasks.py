@@ -1,7 +1,8 @@
-import hmac
 import hashlib
+import hmac
 import json
 import logging
+
 import requests
 from celery import shared_task
 from django.utils import timezone
@@ -19,7 +20,7 @@ def deliver_webhook(self, webhook_event_id: str):
     Retries up to 6 times with exponential backoff.
     On all retries exhausted, moves to dead-letter queue.
     """
-    from webhooks.models import WebhookEndpoint, WebhookEvent
+    from webhooks.models import WebhookEvent
 
     try:
         event = WebhookEvent.objects.select_related('webhook').get(id=webhook_event_id)
@@ -88,7 +89,7 @@ def deliver_webhook(self, webhook_event_id: str):
             delay = RETRY_DELAYS[min(retry_number + 1, len(RETRY_DELAYS) - 1)]
             event.next_retry_at = timezone.now() + timezone.timedelta(seconds=delay)
             event.save()
-            raise self.retry(exc=exc, countdown=delay)
+            raise self.retry(exc=exc, countdown=delay) from exc
         else:
             # All 6 retries exhausted — dead letter queue
             event.status = 'dead_letter'
@@ -106,8 +107,9 @@ def dispatch_webhook_event(merchant_id: str, event_type: str, payload: dict):
     to this event type, creates WebhookEvent records, and queues delivery.
     Called after every payment state change.
     """
-    from webhooks.models import WebhookEndpoint, WebhookEvent
     import uuid
+
+    from webhooks.models import WebhookEndpoint, WebhookEvent
 
     endpoints = WebhookEndpoint.objects.filter(
         merchant_id=merchant_id,

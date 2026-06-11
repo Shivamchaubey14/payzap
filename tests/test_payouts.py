@@ -1,8 +1,10 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from rest_framework.test import APIClient
-from tests.factories import MerchantFactory, APIKeyFactory
+
 from payouts.models import Payout
+from tests.factories import APIKeyFactory, MerchantFactory
 
 
 @pytest.mark.django_db

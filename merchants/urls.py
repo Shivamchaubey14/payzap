@@ -1,10 +1,11 @@
 from django.urls import path
+
 from merchants.views import (
-    MerchantRegistrationView,
+    EmailVerificationView,
+    GenerateAPIKeyView,
     MerchantLoginView,
     MerchantProfileView,
-    GenerateAPIKeyView,
-    EmailVerificationView,
+    MerchantRegistrationView,
 )
 
 urlpatterns = [

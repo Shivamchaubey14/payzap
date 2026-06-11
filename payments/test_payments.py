@@ -1,10 +1,11 @@
 import uuid
+
 from django.test import TestCase
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 from payments.models import Order, Payment
 from payments.processors.mock_gateway import MockBankGateway
-from payments.processors.base import PaymentResult
 from payments.services import PaymentService
 
 

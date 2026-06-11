@@ -1,11 +1,13 @@
-import logging
 import base64
+import logging
 from io import BytesIO
+
 from django.db import transaction
 from django.utils import timezone
+
 from payments.models import Order, Payment
-from payments.upi_validator import validate_vpa, normalize_vpa, generate_upi_intent_url
 from payments.processors.mock_gateway import MockBankGateway
+from payments.upi_validator import generate_upi_intent_url, normalize_vpa, validate_vpa
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,40 @@
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Rollback by N revisions (default: 1)'
+        required: false
+        default: '1'
+      confirm:
+        description: 'Type ROLLBACK to confirm'
+        required: true
+
+jobs:
+  rollback:
+    name: Rollback Production
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'ROLLBACK'
+    environment: production
+
+    steps:
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.29.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Execute rollback
+        run: |
+          kubectl rollout undo deployment/payzap-api \
+            --to-revision=${{ github.event.inputs.revision }} -n payzap
+          kubectl rollout undo deployment/payzap-celery-worker \
+            --to-revision=${{ github.event.inputs.revision }} -n payzap
+          kubectl rollout status deployment/payzap-api -n payzap --timeout=120s
+          echo "Rollback to revision ${{ github.event.inputs.revision }} complete"

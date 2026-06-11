@@ -1,8 +1,9 @@
 import logging
-import time
+
+from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
-from django.core.cache import cache
+
 from payments.models import Order, Payment
 from payments.processors.mock_gateway import MockBankGateway
 
@@ -62,13 +63,6 @@ class PaymentService:
             logger.info(f"Processing payment {payment.id} via {self.gateway.__class__.__name__}")
             result = self.gateway.authorize(payment, payment_data)
 
-            # Step 5 — Atomic state update
-            self._update_payment_state(payment, result)
-
-        except Exception as e:
-            logger.error(f"Payment {payment.id} failed with exception: {e}")
-            self._fail_payment(payment, 'INTERNAL_ERROR', str(e))
-
         # Step 5 — Atomic state update
             self._update_payment_state(payment, result)
 
@@ -103,7 +97,6 @@ class PaymentService:
             result = self.gateway.capture(payment, capture_amount)
             with transaction.atomic():
                 payment_obj = Payment.objects.select_for_update().get(id=payment.id)
-                from monitoring.metrics import payment_captured_total, payment_failed_total
                 if result.success:
                     payment_obj.status = 'captured'
                     payment_obj.captured_at = timezone.now()
@@ -154,12 +147,12 @@ class PaymentService:
             failed_at=timezone.now(),
         )
         payment.status = 'failed'
-        
+
     def _fire_post_payment_tasks(self, payment, order):
         """Fire Celery tasks after payment processing — non-blocking."""
         try:
-            from webhooks.tasks import dispatch_webhook_event
             from payments.tasks import send_payment_confirmation_email
+            from webhooks.tasks import dispatch_webhook_event
 
             event_type = f"payment.{payment.status}"
             dispatch_webhook_event.delay(

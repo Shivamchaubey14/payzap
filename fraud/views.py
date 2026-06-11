@@ -1,10 +1,11 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from merchants.authentication import APIKeyAuthentication
-from fraud.models import FraudSignal
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from fraud.fraud_engine import FraudEngine
+from fraud.models import FraudSignal
+from merchants.authentication import APIKeyAuthentication
 
 
 class FraudSignalListView(APIView):

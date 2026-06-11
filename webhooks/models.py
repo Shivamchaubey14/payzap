@@ -1,7 +1,9 @@
-import uuid
 import hashlib
 import hmac
+import uuid
+
 from django.db import models
+
 from merchants.models import Merchant
 
 

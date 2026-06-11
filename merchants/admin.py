@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.utils import timezone
-from merchants.models import Merchant, APIKey, KYCDocument
+
 from merchants.kyc_service import KYCService
+from merchants.models import APIKey, KYCDocument, Merchant
 
 
 class KYCDocumentInline(admin.TabularInline):

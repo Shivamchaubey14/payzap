@@ -1,9 +1,10 @@
 import uuid
+
 from django.test import TestCase
-from django.contrib.auth.models import User
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey, KYCDocument
+
 from merchants.kyc_service import KYCService
+from merchants.models import APIKey, KYCDocument, Merchant
 
 
 class KYCServiceTest(TestCase):

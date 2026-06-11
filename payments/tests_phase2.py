@@ -1,15 +1,16 @@
 import uuid
+
 from django.test import TestCase
 from rest_framework.test import APIClient
-from merchants.models import Merchant, APIKey
-from payments.models import Order, Payment, Bank
-from payments.card_service import CardPaymentService
-from payments.upi_service import UPIService
-from payments.netbanking_service import NetBankingService
-from payments.wallet_service import WalletService
-from payments.bin_lookup import lookup_bin, get_gateway_for_network
-from payments.upi_validator import validate_vpa, generate_upi_intent_url
 
+from merchants.models import APIKey, Merchant
+from payments.bin_lookup import get_gateway_for_network, lookup_bin
+from payments.card_service import CardPaymentService
+from payments.models import Bank, Order
+from payments.netbanking_service import NetBankingService
+from payments.upi_service import UPIService
+from payments.upi_validator import generate_upi_intent_url, validate_vpa
+from payments.wallet_service import WalletService
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Day 8 — Card Payment Tests
@@ -505,7 +506,7 @@ class NetBankingServiceTest(TestCase):
         order = self._fresh_order()
         payment = self.service.process_netbanking(order, 'HDFC')
         # Extract txn_ref and sig from the redirect URL
-        from urllib.parse import urlparse, parse_qs
+        from urllib.parse import parse_qs, urlparse
         parsed = urlparse(payment.netbanking_url)
         params = parse_qs(parsed.query)
         txn_ref = params['txn_ref'][0]
@@ -518,7 +519,7 @@ class NetBankingServiceTest(TestCase):
     def test_callback_failure_updates_to_failed(self):
         order = self._fresh_order()
         payment = self.service.process_netbanking(order, 'SBI')
-        from urllib.parse import urlparse, parse_qs
+        from urllib.parse import parse_qs, urlparse
         parsed = urlparse(payment.netbanking_url)
         params = parse_qs(parsed.query)
         txn_ref = params['txn_ref'][0]

@@ -1,6 +1,5 @@
-import csv
-import io
 import logging
+
 from celery import shared_task
 
 logger = logging.getLogger(__name__)
@@ -15,9 +14,9 @@ def process_payout_task(payout_id: str):
 @shared_task(name='payouts.process_bulk_payout')
 def process_bulk_payout_task(batch_id: str, merchant_id: str, rows: list):
     """Process each row in a bulk payout batch."""
-    from payouts.payout_service import create_payout, process_payout
     from merchants.models import Merchant
     from payouts.models import Payout
+    from payouts.payout_service import create_payout, process_payout
 
     try:
         merchant = Merchant.objects.get(id=merchant_id)

@@ -1,5 +1,6 @@
 from django.urls import path
-from admin_panel.views import platform_analytics, merchant_management
+
+from admin_panel.views import merchant_management, platform_analytics
 
 urlpatterns = [
     path('analytics/', platform_analytics, name='admin-analytics'),

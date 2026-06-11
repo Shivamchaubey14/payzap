@@ -1,6 +1,6 @@
-import pytest
 from django.test import TestCase
-from merchants.models import Merchant, APIKey
+
+from merchants.models import APIKey, Merchant
 
 
 class MerchantModelTest(TestCase):

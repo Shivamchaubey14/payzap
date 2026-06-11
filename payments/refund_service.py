@@ -1,7 +1,9 @@
-import uuid
 import logging
+import uuid
+
 from django.db import transaction
 from django.utils import timezone
+
 from payments.models import Payment, Refund
 
 logger = logging.getLogger(__name__)
@@ -123,4 +125,4 @@ class RefundService:
                 payment__order__merchant=merchant,
             )
         except Refund.DoesNotExist:
-            raise ValueError('Refund not found.')
+            raise ValueError('Refund not found.') from None

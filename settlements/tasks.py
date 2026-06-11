@@ -1,7 +1,8 @@
 import logging
+
 from celery import shared_task
-from django.utils import timezone
 from django.db.models import Sum
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,6 @@ def process_daily_settlements():
     from payments.models import Payment
     from settlements.models import Settlement
 
-    today = timezone.now().date()
     settlement_from = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
     settlement_to = timezone.now()
 
@@ -81,6 +81,7 @@ def _initiate_bank_payout(settlement):
     Simulates instant success for development.
     """
     import uuid
+
     from settlements.models import Settlement
 
     # Simulate bank UTR number

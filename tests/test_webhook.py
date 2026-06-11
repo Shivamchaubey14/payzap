@@ -1,9 +1,11 @@
-import hmac
 import hashlib
+import hmac
 import json
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from tests.factories import MerchantFactory, APIKeyFactory
+
+from tests.factories import MerchantFactory
 from webhooks.models import WebhookEndpoint, WebhookEvent
 from webhooks.webhook_service import WebhookService
 
@@ -90,7 +92,7 @@ class TestWebhookDelivery:
         signature = self.service._sign('testsecret123', payload_str)
 
         expected = hmac.new(
-            'testsecret123'.encode(),
+            b'testsecret123',
             payload_str.encode(),
             hashlib.sha256,
         ).hexdigest()

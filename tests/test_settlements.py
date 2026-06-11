@@ -1,10 +1,12 @@
+from unittest.mock import patch
+
 import pytest
 from django.utils import timezone
-from unittest.mock import patch
 from rest_framework.test import APIClient
-from tests.factories import MerchantFactory, APIKeyFactory, OrderFactory, PaymentFactory
+
 from settlements.models import Settlement
 from settlements.tasks import process_daily_settlements
+from tests.factories import APIKeyFactory, MerchantFactory, OrderFactory, PaymentFactory
 
 
 @pytest.mark.django_db
@@ -88,7 +90,6 @@ class TestSettlementEngine:
         assert Settlement.objects.filter(merchant=inactive).count() == 0
 
     def test_payments_marked_in_settlement_after_processing(self):
-        from payments.models import Payment
         order = OrderFactory(merchant=self.merchant, amount=100000)
         payment = PaymentFactory(
             order=order,

@@ -3,13 +3,14 @@ PayZap - settings.py
 Day 1: Full configuration for MySQL + Redis + Celery
 """
 
-import os
+
 import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
-from pathlib import Path
 from decouple import config
+from pathlib import Path
+from datetime import timedelta
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 # ── Base ─────────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,7 +131,7 @@ REST_FRAMEWORK = {
 }
 
 # ── JWT ───────────────────────────────────────────────────────────────────────
-from datetime import timedelta
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),

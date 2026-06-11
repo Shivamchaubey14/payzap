@@ -1,21 +1,22 @@
+from datetime import timedelta
+
 import redis
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Q, Sum
 from django.shortcuts import render
 from django.utils import timezone
-from django.db.models import Sum, Count, Q
-from datetime import timedelta
-from django.conf import settings
+
+from fraud.models import FraudSignal
 from merchants.models import Merchant
-from payments.models import Payment, Order
+from payments.models import Payment
 from settlements.models import Settlement
 from webhooks.models import WebhookEvent
-from fraud.models import FraudSignal
 
 
 @staff_member_required
 def platform_analytics(request):
     today = timezone.now().date()
-    last_7 = today - timedelta(days=7)
 
     # GMV stats
     total_gmv = Payment.objects.filter(

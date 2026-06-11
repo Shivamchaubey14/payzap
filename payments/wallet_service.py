@@ -1,7 +1,9 @@
-import uuid
 import logging
+import uuid
+
 from django.db import transaction
 from django.utils import timezone
+
 from payments.models import Order, Payment
 
 logger = logging.getLogger(__name__)

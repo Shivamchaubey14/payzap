@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 BIN_DATABASE = {
     '411111': {'bank': 'HDFC Bank', 'network': 'visa', 'type': 'credit', 'country': 'IN'},
     '400000': {'bank': 'ICICI Bank', 'network': 'visa', 'type': 'debit', 'country': 'IN'},
-    '400000': {'bank': 'Test Bank', 'network': 'visa', 'type': 'credit', 'country': 'US'},
     '510510': {'bank': 'SBI', 'network': 'mastercard', 'type': 'credit', 'country': 'IN'},
     '607080': {'bank': 'Axis Bank', 'network': 'rupay', 'type': 'debit', 'country': 'IN'},
     '652100': {'bank': 'PNB', 'network': 'rupay', 'type': 'credit', 'country': 'IN'},

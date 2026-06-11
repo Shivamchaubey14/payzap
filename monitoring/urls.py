@@ -1,4 +1,5 @@
 from django.urls import path
+
 from monitoring.views import health_check, system_stats
 
 urlpatterns = [

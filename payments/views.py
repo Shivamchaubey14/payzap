@@ -1,23 +1,26 @@
-from django.utils import timezone
 from datetime import timedelta
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from monitoring.metrics import payment_created_total
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from payments.models import Order, Payment, Refund
-from payments.refund_service import RefundService
-from payments.serializers import OrderCreateSerializer, OrderResponseSerializer, RefundSerializer
-from merchants.authentication import APIKeyAuthentication
-from payments.services import PaymentService
-from payments.serializers import PaymentResponseSerializer
-from payments.models import PaymentLink, VirtualAccount
-from payments.payment_link_service import PaymentLinkService
-from payments.virtual_account_service import VirtualAccountService
-from payments.serializers import PaymentLinkSerializer, VirtualAccountSerializer
-from django.shortcuts import get_object_or_404
+
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiExample, extend_schema
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from merchants.authentication import APIKeyAuthentication
+from payments.models import Order, Payment, PaymentLink, VirtualAccount
+from payments.payment_link_service import PaymentLinkService
+from payments.refund_service import RefundService
+from payments.serializers import (
+    OrderCreateSerializer,
+    OrderResponseSerializer,
+    PaymentLinkSerializer,
+    PaymentResponseSerializer,
+    RefundSerializer,
+    VirtualAccountSerializer,
+)
+from payments.services import PaymentService
+from payments.virtual_account_service import VirtualAccountService
 
 
 class OrderCreateView(APIView):
@@ -28,7 +31,7 @@ class OrderCreateView(APIView):
     """
     authentication_classes = [APIKeyAuthentication]
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
     summary="Create a payment order",
     description="Creates a new order. Use the returned order_id to initiate payment via Checkout.js or API.",
@@ -148,7 +151,7 @@ class OrderListView(APIView):
             'total_pages': (total + page_size - 1) // page_size,
             'items': OrderResponseSerializer(queryset[start:end], many=True).data,
         })
-        
+
 
 
 class PaymentCreateView(APIView):
@@ -240,6 +243,7 @@ class PaymentDetailView(APIView):
         try:
             payment = Payment.objects.select_related('order__merchant').get(id=payment_id)
         except Payment.DoesNotExist:
+            raise ValueError('Payment not found.') from None
             return Response({'error': 'Payment not found.'}, status=404)
 
         if payment.order.merchant != request.user:
@@ -260,6 +264,7 @@ class PaymentCaptureView(APIView):
         try:
             payment = Payment.objects.select_related('order__merchant').get(id=payment_id)
         except Payment.DoesNotExist:
+            raise ValueError('Payment not found.') from None
             return Response({'error': 'Payment not found.'}, status=404)
 
         if payment.order.merchant != request.user:
@@ -273,7 +278,7 @@ class PaymentCaptureView(APIView):
             return Response({'error': str(e)}, status=400)
 
         return Response(PaymentResponseSerializer(payment).data)
-    
+
 class BankListView(APIView):
     """
     GET /v1/banks/
@@ -287,8 +292,8 @@ class BankListView(APIView):
         from payments.models import Bank
         banks = Bank.objects.filter(is_active=True).values('name', 'code')
         return Response({'banks': list(banks)})
-    
-    
+
+
 class RefundCreateView(APIView):
     """
     POST /v1/refunds/
@@ -329,7 +334,6 @@ class RefundCreateView(APIView):
             RefundSerializer(refund).data,
             status=status.HTTP_201_CREATED,
         )
-
 
 class RefundDetailView(APIView):
     """

@@ -1,8 +1,10 @@
 import logging
+
 from django.db import transaction
 from django.utils import timezone
+
+from payments.bin_lookup import get_gateway_for_network, lookup_bin
 from payments.models import Order, Payment
-from payments.bin_lookup import lookup_bin, get_gateway_for_network
 from payments.processors.mock_gateway import MockBankGateway
 
 logger = logging.getLogger(__name__)

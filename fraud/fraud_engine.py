@@ -1,7 +1,7 @@
 import logging
+
 import redis
 from django.conf import settings
-from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +186,7 @@ class FraudEngine:
 
     def record_signals(self, payment, result: dict):
         """Persist triggered fraud signals to DB for admin review."""
-        from fraud.models import FraudSignal, FraudRule
+        from fraud.models import FraudRule, FraudSignal
 
         for triggered in result['triggered_rules']:
             rule = FraudRule.objects.filter(

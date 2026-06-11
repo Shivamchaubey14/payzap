@@ -1,17 +1,17 @@
+
 import jwt
-import secrets
-import hashlib
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 from django.conf import settings
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from merchants.models import Merchant, APIKey
-from merchants.serializers import MerchantRegistrationSerializer, MerchantProfileSerializer
+
 from merchants.authentication import APIKeyAuthentication
+from merchants.models import APIKey, Merchant
+from merchants.serializers import MerchantProfileSerializer, MerchantRegistrationSerializer
 
 
 class MerchantRegistrationView(APIView):
@@ -165,7 +165,7 @@ class GenerateAPIKeyView(APIView):
             'created_at': api_key.created_at,
             'warning': 'Save this key now. It will not be shown again.',
         }, status=status.HTTP_201_CREATED)
-        
+
 class EmailVerificationView(APIView):
     """
     GET /v1/accounts/verify-email/?token=xxx

@@ -1,9 +1,11 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 from rest_framework.test import APIClient
-from tests.factories import MerchantFactory, APIKeyFactory, OrderFactory, PaymentFactory
+
 from fraud.fraud_engine import FraudEngine
 from fraud.models import FraudSignal
+from tests.factories import APIKeyFactory, MerchantFactory, OrderFactory, PaymentFactory
 
 
 @pytest.mark.django_db
