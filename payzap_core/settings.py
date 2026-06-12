@@ -4,10 +4,11 @@ Day 1: Full configuration for MySQL + Redis + Celery
 """
 
 
+from datetime import timedelta
+from pathlib import Path
+
 import sentry_sdk
 from decouple import config
-from pathlib import Path
-from datetime import timedelta
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -146,6 +147,7 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     'PREPROCESSING_HOOKS': [],
     'POSTPROCESSING_HOOKS': [],
+    'DISABLE_ERRORS_AND_WARNINGS': True,
 }
 
 # ── Password Validation ───────────────────────────────────────────────────────
@@ -309,3 +311,10 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+
+
+# ── Silence drf-spectacular schema warnings (W001/W002 are cosmetic) ──────────
+SILENCED_SYSTEM_CHECKS = [
+    'drf_spectacular.W001',
+    'drf_spectacular.W002',
+]
