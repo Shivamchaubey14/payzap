@@ -6,6 +6,7 @@ Place this file inside payzap_core/ folder (replaces the existing urls.py)
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', include('django_prometheus.urls')),
@@ -29,4 +30,7 @@ urlpatterns = [
     path('dashboard/', include('merchants.dashboard_urls')),
     path('admin-panel/', include('admin_panel.urls')),
     path('monitoring/', include('monitoring.urls')),
+    path('', TemplateView.as_view(template_name='landing/index.html'), name='landing'),
+    path('onboarding/', TemplateView.as_view(template_name='onboarding/wizard.html'), name='onboarding'),
+    path('status/', TemplateView.as_view(template_name='status/index.html'), name='status'),
 ]
