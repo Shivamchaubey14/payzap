@@ -68,6 +68,23 @@ services:
       POSTGRES_DB: payzap
       POSTGRES_USER: payzap
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=4GB
+      -c effective_cache_size=12GB
+      -c work_mem=64MB
+      -c maintenance_work_mem=512MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=64MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c min_wal_size=2GB
+      -c max_wal_size=8GB
+      -c max_worker_processes=8
+      -c max_parallel_workers_per_gather=4
+      -c max_parallel_workers=8
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -81,7 +98,16 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
-    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    command: >
+      redis-server
+      --maxmemory 4gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appenfsync everysec
+      --save ""
+      --tcp-backing 511
+      --hz 100
+
     volumes:
       - redis_data:/data
     networks:
