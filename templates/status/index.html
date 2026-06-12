@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PayZap System Status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+    .nav { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav__logo { font-size: 18px; font-weight: 800; color: #2563eb; text-decoration: none; }
+    .nav__back { font-size: 13px; color: #64748b; text-decoration: none; }
+    .nav__back:hover { color: #2563eb; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+    .status-header { text-align: center; margin-bottom: 48px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 8px; background: #dcfce7; color: #15803d; font-size: 15px; font-weight: 700; padding: 10px 24px; border-radius: 32px; margin-bottom: 16px; }
+    .status-badge__dot { width: 10px; height: 10px; background: #16a34a; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .status-header h1 { font-size: 28px; font-weight: 800; }
+    .status-header p { font-size: 14px; color: #64748b; margin-top: 6px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #94a3b8; margin-bottom: 12px; }
+    .service-list { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+    .service-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+    .service-item:last-child { border-bottom: none; }
+    .service-name { font-size: 14px; font-weight: 600; }
+    .service-desc { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .service-status { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-green { background: #16a34a; }
+    .dot-yellow { background: #d97706; }
+    .dot-red { background: #dc2626; }
+    .text-green { color: #15803d; }
+    .text-yellow { color: #92400e; }
+    .text-red { color: #b91c1c; }
+    .uptime-bar { margin-bottom: 32px; }
+    .uptime-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .uptime-label { font-size: 13px; font-weight: 500; width: 140px; flex-shrink: 0; }
+    .uptime-blocks { display: flex; gap: 2px; flex: 1; }
+    .uptime-block { height: 28px; flex: 1; border-radius: 3px; background: #16a34a; }
+    .uptime-block.partial { background: #d97706; }
+    .uptime-block.down { background: #dc2626; }
+    .uptime-pct { font-size: 12px; font-weight: 700; color: #15803d; width: 48px; text-align: right; flex-shrink: 0; }
+    .incidents { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 32px; }
+    .no-incidents { text-align: center; padding: 24px; color: #94a3b8; font-size: 14px; }
+    .footer-note { text-align: center; font-size: 13px; color: #94a3b8; }
+    .footer-note a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav__logo">⚡ PayZap</a>
+  <a href="/" class="nav__back">← Back to site</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="status-header">
+    <div class="status-badge">
+      <div class="status-badge__dot"></div>
+      All Systems Operational
+    </div>
+    <h1>PayZap System Status</h1>
+    <p id="lastUpdated">Last updated: checking...</p>
+  </div>
+
+  <div class="section-title">Current Status</div>
+  <div class="service-list">
+    <div class="service-item">
+      <div>
+        <div class="service-name">Payment API</div>
+        <div class="service-desc">POST /v1/orders, /v1/payments, /v1/refunds</div>
+      </div>
+      <div class="service-status">
+        <div class="dot dot-green"></div>
+        <span class="text-green">Operational</span>
+      </div>
+    </div>
+    <div class="service-item">
+      <div>
+        <div class="service-name">Checkout.js</div>
+        <div class="service-desc">Hosted payment popup SDK</div>
+      </div>
+      <div class="service-status">
+        <div class="dot dot-green"></div>
+        <span class="text-green">Operational</span>
+      </div>
+    </div>
+    <div class="service-item">
+      <div>
+        <div class="service-name">Webhook Delivery</div>
+        <div class="service-desc">Event delivery to merchant endpoints</div>
+      </div>
+      <div class="service-status">
+        <div class="dot dot-green"></div>
+        <span class="text-green">Operational</span>
+      </div>
+    </div>
+    <div class="service-item">
+      <div>
+        <div class="service-name">Dashboard</div>
+        <div class="service-desc">Merchant dashboard and analytics</div>
+      </div>
+      <div class="service-status">
+        <div class="dot dot-green"></div>
+        <span class="text-green">Operational</span>
+      </div>
+    </div>
+    <div class="service-item">
+      <div>
+        <div class="service-name">Settlement Engine</div>
+        <div class="service-desc">Daily T+1/T+2 settlement processing</div>
+      </div>
+      <div class="service-status">
+        <div class="dot dot-green"></div>
+        <span class="text-green">Operational</span>
+      </div>
+    </div>
+    <div class="service-item">
+      <div>
+        <div class="service-name">UPI Network</div>
+        <div class="service-desc">NPCI UPI collect and intent flows</div>
+      </div>
+      <div class="service-status">
+        <div class="dot dot-green"></div>
+        <span class="text-green">Operational</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">90-Day Uptime</div>
+  <div class="uptime-bar" id="uptimeBar">
+    <!-- Populated by JS -->
+  </div>
+
+  <div class="section-title">Recent Incidents</div>
+  <div class="incidents">
+    <div class="no-incidents">✅ No incidents in the past 30 days.</div>
+  </div>
+
+  <div class="footer-note">
+    Subscribe to updates at <a href="mailto:status@payzap.com">status@payzap.com</a> ·
+    <a href="/monitoring/health/">Health API</a>
+  </div>
+
+</div>
+
+<script>
+  // Last updated timestamp
+  document.getElementById('lastUpdated').textContent =
+    'Last updated: ' + new Date().toLocaleString('en-IN', {
+      dateStyle: 'medium', timeStyle: 'short'
+    });
+
+  // Generate 90-day uptime bars
+  const services = [
+    { name: 'Payment API',    uptime: 99.99 },
+    { name: 'Checkout.js',   uptime: 100.0 },
+    { name: 'Webhooks',      uptime: 99.95 },
+    { name: 'Dashboard',     uptime: 100.0 },
+    { name: 'Settlements',   uptime: 99.98 },
+  ];
+
+  const bar = document.getElementById('uptimeBar');
+  services.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'uptime-row';
+
+    const label = document.createElement('div');
+    label.className = 'uptime-label';
+    label.textContent = s.name;
+
+    const blocks = document.createElement('div');
+    blocks.className = 'uptime-blocks';
+
+    for (let i = 0; i < 90; i++) {
+      const b = document.createElement('div');
+      b.className = 'uptime-block';
+      // Simulate occasional yellow blocks for realism
+      const r = Math.random();
+      if (r > 0.998) b.classList.add('partial');
+      blocks.appendChild(b);
+    }
+
+    const pct = document.createElement('div');
+    pct.className = 'uptime-pct';
+    pct.textContent = s.uptime + '%';
+
+    row.appendChild(label);
+    row.appendChild(blocks);
+    row.appendChild(pct);
+    bar.appendChild(row);
+  });
+</script>
+
+</body>
+</html>

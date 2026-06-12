@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PayZap — Accept Payments in Minutes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/landing.css">
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────────── -->
+<nav class="nav">
+  <a href="/" class="nav__logo">⚡ PayZap</a>
+  <ul class="nav__links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="/api/docs/">Docs</a></li>
+    <li><a href="/status/">Status</a></li>
+    <li><a href="/dashboard/login/" class="btn btn--ghost">Login</a></li>
+    <li><a href="/onboarding/" class="btn btn--primary">Get Started →</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero__inner">
+    <div class="hero__badge">🇮🇳 Built for India · UPI · Cards · NetBanking · Wallets</div>
+    <h1 class="hero__title">Accept Payments<br><span class="gradient-text">At 100,000 TPS</span></h1>
+    <p class="hero__subtitle">
+      The developer-first payment gateway. Integrate in 5 minutes,
+      scale to millions of transactions. PCI-DSS compliant. Zero setup fee.
+    </p>
+    <div class="hero__cta">
+      <a href="/onboarding/" class="btn btn--primary btn--lg">Start for Free →</a>
+      <a href="/dashboard/sandbox/" class="btn btn--ghost btn--lg">Try Sandbox</a>
+    </div>
+    <div class="hero__stats">
+      <div class="stat"><span class="stat__num">100K</span><span class="stat__label">TPS Capacity</span></div>
+      <div class="stat"><span class="stat__num">99.99%</span><span class="stat__label">Uptime SLA</span></div>
+      <div class="stat"><span class="stat__num">&lt;300ms</span><span class="stat__label">p99 Latency</span></div>
+      <div class="stat"><span class="stat__num">₹0</span><span class="stat__label">Setup Fee</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ─────────────────────────────────────────────────────────────── -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <h2 class="section-title">Everything you need to accept payments</h2>
+    <p class="section-subtitle">One API. All payment methods. Built for scale.</p>
+    <div class="features__grid">
+      <div class="feature-card">
+        <div class="feature-card__icon">💳</div>
+        <h3>All Payment Methods</h3>
+        <p>Cards, UPI, Net Banking, Wallets, EMI — unified under one API. 50+ banks supported out of the box.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">⚡</div>
+        <h3>5-Line Integration</h3>
+        <p>Drop in Checkout.js and accept payments on any website instantly. No server changes required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">🔒</div>
+        <h3>PCI-DSS Compliant</h3>
+        <p>SAQ-A compliant checkout. Card data never touches your servers. Tokenized via secure vault.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">🔔</div>
+        <h3>Reliable Webhooks</h3>
+        <p>HMAC-signed webhook delivery with 6-attempt retry, dead-letter queue, and delivery logs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">📊</div>
+        <h3>Real-time Dashboard</h3>
+        <p>Live GMV, success rates, settlement tracking, and payment analytics all in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">🤖</div>
+        <h3>Fraud Detection</h3>
+        <p>Real-time risk scoring, velocity checks, BIN blacklisting, and manual review queue.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Integration ───────────────────────────────────────────────────────────── -->
+<section class="integration" id="integration">
+  <div class="section-inner">
+    <div class="integration__grid">
+      <div class="integration__text">
+        <h2>Integrate in under 5 minutes</h2>
+        <p>Add one script tag and two lines of JavaScript. Works on any website — React, Vue, plain HTML, WordPress.</p>
+        <a href="/onboarding/" class="btn btn--primary">Get your API key →</a>
+      </div>
+      <div class="code-block">
+        <div class="code-block__header">
+          <div class="code-block__dot" style="background:#ef4444"></div>
+          <div class="code-block__dot" style="background:#f59e0b"></div>
+          <div class="code-block__dot" style="background:#10b981"></div>
+          <span style="color:#64748b;font-size:12px;margin-left:8px">checkout.html</span>
+        </div>
+        <pre><span class="cm">&lt;!-- Step 1: Add the script --&gt;</span>
+<span class="kw">&lt;script</span> <span class="fn">src</span>=<span class="str">"https://api.payzap.com/static/js/checkout.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- Step 2: Open the payment popup --&gt;</span>
+<span class="kw">&lt;script&gt;</span>
+  <span class="kw">var</span> <span class="fn">options</span> = {
+    <span class="fn">key</span>: <span class="str">"rzp_live_YOUR_KEY"</span>,
+    <span class="fn">amount</span>: <span class="str">50000</span>, <span class="cm">// ₹500 in paise</span>
+    <span class="fn">currency</span>: <span class="str">"INR"</span>,
+    <span class="fn">name</span>: <span class="str">"Your Store"</span>,
+    <span class="fn">handler</span>: <span class="kw">function</span>(<span class="fn">response</span>) {
+      <span class="cm">// Payment successful!</span>
+      console.<span class="fn">log</span>(response.<span class="fn">payment_id</span>);
+    }
+  };
+  <span class="kw">var</span> <span class="fn">rzp</span> = <span class="kw">new</span> <span class="fn">PayZap</span>(options);
+  rzp.<span class="fn">open</span>();
+<span class="kw">&lt;/script&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ───────────────────────────────────────────────────────────────── -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <h2 class="section-title">Simple, transparent pricing</h2>
+    <p class="section-subtitle">No setup fees. No monthly fees. Pay only when you earn.</p>
+    <div class="pricing__grid">
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <div class="pricing-card__price">2%<span> per transaction</span></div>
+        <p>Perfect for getting started. No KYC required for test mode.</p>
+        <ul>
+          <li>All payment methods</li>
+          <li>Checkout.js SDK</li>
+          <li>Webhooks & API access</li>
+          <li>Email support</li>
+          <li>T+2 settlement</li>
+        </ul>
+        <a href="/onboarding/" class="btn btn--ghost" style="width:100%;justify-content:center">Get Started</a>
+      </div>
+      <div class="pricing-card pricing-card--featured">
+        <div class="pricing-card__badge">Most Popular</div>
+        <h3>Growth</h3>
+        <div class="pricing-card__price">1.5%<span> per transaction</span></div>
+        <p>For growing businesses processing ₹10L+ monthly.</p>
+        <ul>
+          <li>Everything in Starter</li>
+          <li>Priority support</li>
+          <li>T+1 settlement</li>
+          <li>Bulk payouts</li>
+          <li>Advanced fraud rules</li>
+        </ul>
+        <a href="/onboarding/" class="btn btn--primary" style="width:100%;justify-content:center">Get Started</a>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <div class="pricing-card__price">Custom<span> pricing</span></div>
+        <p>For large businesses with high volume requirements.</p>
+        <ul>
+          <li>Everything in Growth</li>
+          <li>Dedicated account manager</li>
+          <li>Same-day settlement</li>
+          <li>Custom fraud rules</li>
+          <li>SLA guarantee</li>
+        </ul>
+        <a href="mailto:enterprise@payzap.com" class="btn btn--ghost" style="width:100%;justify-content:center">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ───────────────────────────────────────────────────────────────────── -->
+<section class="cta-banner">
+  <h2>Ready to accept your first payment?</h2>
+  <p>Join thousands of businesses using PayZap. Setup takes under 5 minutes.</p>
+  <a href="/onboarding/" class="btn btn--white btn--lg">Create Free Account →</a>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <div style="font-size:20px;font-weight:800;color:#fff">⚡ PayZap</div>
+      <p>India's developer-first payment gateway. Built for speed, scale, and simplicity.</p>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="/api/docs/">API Docs</a></li>
+        <li><a href="/status/">System Status</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Developers</h4>
+      <ul>
+        <li><a href="/api/docs/">API Reference</a></li>
+        <li><a href="/dashboard/sandbox/">Sandbox</a></li>
+        <li><a href="/onboarding/">Quick Start</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="mailto:support@payzap.com">Support</a></li>
+        <li><a href="mailto:enterprise@payzap.com">Enterprise</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2026 PayZap. All rights reserved.</span>
+    <span>PCI-DSS Compliant · TLS 1.3 · AES-256</span>
+  </div>
+</footer>
+
+</body>
+</html>

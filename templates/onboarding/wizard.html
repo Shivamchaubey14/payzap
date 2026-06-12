@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Started — PayZap</title>
+  <link rel="stylesheet" href="/static/css/onboarding.css">
+</head>
+<body>
+
+<nav class="onboarding-nav">
+  <a href="/" class="onboarding-nav__logo">⚡ PayZap</a>
+</nav>
+
+<div class="onboarding-wrap">
+  <div class="onboarding-card">
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-bar__fill" id="progressFill" style="width:20%"></div>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="steps">
+      <div class="step">
+        <div class="step__circle active" id="s1">1</div>
+      </div>
+      <div class="step__line" id="l1"></div>
+      <div class="step">
+        <div class="step__circle" id="s2">2</div>
+      </div>
+      <div class="step__line" id="l2"></div>
+      <div class="step">
+        <div class="step__circle" id="s3">3</div>
+      </div>
+      <div class="step__line" id="l3"></div>
+      <div class="step">
+        <div class="step__circle" id="s4">4</div>
+      </div>
+      <div class="step__line" id="l4"></div>
+      <div class="step">
+        <div class="step__circle" id="s5">5</div>
+      </div>
+    </div>
+
+    <!-- ── Step 1: Account ──────────────────────────────────────────────── -->
+    <div class="step-content" id="step1">
+      <div class="step-content__title">Create your account</div>
+      <div class="step-content__sub">Get started in under 2 minutes. No credit card required.</div>
+
+      <div class="form-group">
+        <label class="form-label">Business Name <span>*</span></label>
+        <input type="text" class="form-input" id="businessName" placeholder="Acme Pvt Ltd">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name <span>*</span></label>
+          <input type="text" class="form-input" id="firstName" placeholder="Rahul">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name <span>*</span></label>
+          <input type="text" class="form-input" id="lastName" placeholder="Sharma">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Email <span>*</span></label>
+        <input type="email" class="form-input" id="email" placeholder="rahul@acme.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number <span>*</span></label>
+        <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password <span>*</span></label>
+        <input type="password" class="form-input" id="password" placeholder="Min 8 characters">
+        <div class="form-hint">Use a strong password with letters, numbers, and symbols.</div>
+      </div>
+
+      <div class="step-actions">
+        <span style="font-size:13px;color:#94a3b8">Step 1 of 5</span>
+        <button class="btn btn--primary" onclick="goNext(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Step 2: KYC ──────────────────────────────────────────────────── -->
+    <div class="step-content" id="step2" style="display:none">
+      <div class="step-content__title">Business verification</div>
+      <div class="step-content__sub">Required to activate live payments. Test mode works immediately without KYC.</div>
+
+      <div class="form-group">
+        <label class="form-label">Business Type <span>*</span></label>
+        <select class="form-select" id="bizType">
+          <option value="">Select type</option>
+          <option>Sole Proprietorship</option>
+          <option>Private Limited</option>
+          <option>LLP</option>
+          <option>Partnership</option>
+          <option>Individual / Freelancer</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">PAN Number <span>*</span></label>
+          <input type="text" class="form-input" id="pan" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GSTIN</label>
+          <input type="text" class="form-input" id="gstin" placeholder="22ABCDE1234F1Z5">
+          <div class="form-hint">Optional for individuals</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Address <span>*</span></label>
+        <input type="text" class="form-input" id="address" placeholder="123 MG Road, Bengaluru, Karnataka 560001">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Upload Aadhar / Business Proof</label>
+        <input type="file" class="form-input" id="kycDoc" accept=".pdf,.jpg,.png">
+        <div class="form-hint">PDF or image, max 5MB. You can upload more documents from your dashboard later.</div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn--ghost" onclick="goBack(2)">← Back</button>
+        <button class="btn btn--primary" onclick="goNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Step 3: Bank Account ─────────────────────────────────────────── -->
+    <div class="step-content" id="step3" style="display:none">
+      <div class="step-content__title">Settlement bank account</div>
+      <div class="step-content__sub">Where should we send your daily settlements? We'll do a ₹1 penny-drop to verify.</div>
+
+      <div class="form-group">
+        <label class="form-label">Account Holder Name <span>*</span></label>
+        <input type="text" class="form-input" id="accName" placeholder="Acme Pvt Ltd">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Account Number <span>*</span></label>
+          <input type="text" class="form-input" id="accNum" placeholder="1234567890">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Re-enter Account Number <span>*</span></label>
+          <input type="text" class="form-input" id="accNum2" placeholder="1234567890">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">IFSC Code <span>*</span></label>
+          <input type="text" class="form-input" id="ifsc" placeholder="HDFC0001234" maxlength="11" style="text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Type <span>*</span></label>
+          <select class="form-select" id="accType">
+            <option>Current</option>
+            <option>Savings</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Settlement Cycle</label>
+        <select class="form-select" id="settleCycle">
+          <option>T+2 (default)</option>
+          <option>T+1 (Growth plan)</option>
+        </select>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn--ghost" onclick="goBack(3)">← Back</button>
+        <button class="btn btn--primary" onclick="goNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Step 4: API Keys ─────────────────────────────────────────────── -->
+    <div class="step-content" id="step4" style="display:none">
+      <div class="step-content__title">Your API keys are ready</div>
+      <div class="step-content__sub">Use test keys to build and verify your integration before going live.</div>
+
+      <div class="warning-box">
+        ⚠️ <strong>Save these keys now.</strong> The secret key will not be shown again after you leave this page.
+      </div>
+
+      <div class="api-key-box">
+        <div class="api-key-box__label">Test Key ID</div>
+        <div class="api-key-box__key" id="displayKeyId">rzp_test_••••••••••••••••</div>
+        <div class="api-key-box__copy" onclick="copyKey('keyId')">📋 Copy Key ID</div>
+      </div>
+
+      <div class="api-key-box">
+        <div class="api-key-box__label">Test Secret Key</div>
+        <div class="api-key-box__key" id="displaySecret">rzp_test_secret_••••••••••••••••</div>
+        <div class="api-key-box__copy" onclick="copyKey('secret')">📋 Copy Secret Key</div>
+      </div>
+
+      <div class="form-group" style="margin-top:16px">
+        <label class="form-label">Webhook URL <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+        <input type="url" class="form-input" id="webhookUrl" placeholder="https://yoursite.com/webhooks/payzap">
+        <div class="form-hint">We'll POST payment events here. You can add more from your dashboard.</div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn--ghost" onclick="goBack(4)">← Back</button>
+        <button class="btn btn--primary" onclick="goNext(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Step 5: First Payment ────────────────────────────────────────── -->
+    <div class="step-content" id="step5" style="display:none;text-align:center">
+      <div class="success-icon">🎉</div>
+      <div class="step-content__title">You're all set!</div>
+      <div class="step-content__sub">
+        Your PayZap account is ready. Make your first test payment to verify the integration,
+        then go live once KYC is approved.
+      </div>
+
+      <div class="success-links">
+        <a href="/dashboard/" class="success-link">
+          <div class="success-link__icon">📊</div>
+          <div class="success-link__label">Go to Dashboard</div>
+        </a>
+        <a href="/dashboard/sandbox/" class="success-link">
+          <div class="success-link__icon">🧪</div>
+          <div class="success-link__label">Try Sandbox</div>
+        </a>
+        <a href="/api/docs/" class="success-link">
+          <div class="success-link__icon">📖</div>
+          <div class="success-link__label">API Reference</div>
+        </a>
+        <a href="#" class="success-link" onclick="showIntegrationGuide()">
+          <div class="success-link__icon">⚡</div>
+          <div class="success-link__label">Integration Guide</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/static/js/onboarding.js"></script>
+</body>
+</html>
